@@ -1,4 +1,5 @@
 import BigNumber from 'bignumber.js';
+import { isEqual } from 'lodash';
 import { isITypedValue, parse } from 'parse';
 import { stringify } from 'stringify';
 import { IType, ITypedValue } from 'types';
@@ -47,26 +48,22 @@ const customParse = (obj: unknown): { use: boolean; data?: BigNumber } => {
 	return { use: false };
 };
 
-export const main = () => {
-	console.log('original    ', test1);
-	const s1 = stringify(test1, customStringify);
+const test = (obj: unknown) => {
+	console.log('original    ', obj);
+	const s1 = stringify(obj, customStringify);
 	const d1 = parse(s1, customParse);
 	console.log('deserialised', d1);
 	console.log('serialised', s1);
-
+	if (!isEqual(obj, d1)) {
+		console.log('Issue: Objects are not equal!!!');
+	}
 	console.log();
-	console.log('original    ', test2);
-	const s2 = stringify(test2, customStringify);
-	const d2 = parse(s2, customParse);
-	console.log('deserialised', d2);
-	console.log('serialised', s2);
+};
 
-	console.log();
-	console.log('original    ', test3);
-	const s3 = stringify(test3, customStringify);
-	const d3 = parse(s3, customParse);
-	console.log('deserialised', d3);
-	console.log('serialised', s3);
+export const main = () => {
+	test(test1);
+	test(test2);
+	test(test3);
 };
 
 main();

@@ -1,0 +1,19 @@
+{
+	"name": "typed-stringify",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"test": "NODE_PATH=./src npx ts-node --transpile-only ./src/test.ts"
+	},
+	"keywords": [
+		"stringify"
+	],
+	"author": "Chainsulting <hello@chainsulting.de> (https://chainsulting.de)",
+	"license": "",
+	"devDependencies": {
+		"bignumber.js": "^9.0.2",
+		"ts-node": "^10.7.0",
+		"typescript": "^4.6.2"
+	}
+}

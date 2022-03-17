@@ -57,6 +57,46 @@ test('Empty array', () => {
 	expect(isEqual(obj, parse(stringify(obj)))).toBe(true);
 });
 
+test('null', () => {
+	const obj = null;
+	expect(isEqual(obj, parse(stringify(obj)))).toBe(true);
+});
+
+test('undefined', () => {
+	const obj = undefined;
+	expect(isEqual(obj, parse(stringify(obj)))).toBe(true);
+});
+
+test('Empty string', () => {
+	const obj = '';
+	expect(isEqual(obj, parse(stringify(obj)))).toBe(true);
+});
+
+test('string', () => {
+	const obj = 'hello';
+	expect(isEqual(obj, parse(stringify(obj)))).toBe(true);
+});
+
+test('number', () => {
+	const obj = 123;
+	expect(isEqual(obj, parse(stringify(obj)))).toBe(true);
+});
+
+test('boolean', () => {
+	const obj = true;
+	expect(isEqual(obj, parse(stringify(obj)))).toBe(true);
+});
+
+test('bigint', () => {
+	const obj = BigInt(123);
+	expect(isEqual(obj, parse(stringify(obj)))).toBe(true);
+});
+
+test('Date', () => {
+	const obj = new Date();
+	expect(isEqual(obj, parse(stringify(obj)))).toBe(true);
+});
+
 test('Big object', () => {
 	expect(isEqual(bigTestObject, parse(stringify(bigTestObject, customStringify), customParse))).toBe(true);
 });

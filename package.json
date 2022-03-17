@@ -1,9 +1,13 @@
 {
-	"name": "typed-stringify",
+	"name": "@softstack/typed-stringify",
 	"version": "1.0.0",
-	"description": "",
+	"description": "Stringifies and parses objects while restoring the proper type on parse",
 	"main": "lib/index.js",
 	"types": "lib/index.d.ts",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/chainsulting/typed-stringify"
+	},
 	"scripts": {
 		"test": "jest --config jestconfig.json",
 		"build": "tsc",
@@ -18,8 +22,8 @@
 	"keywords": [
 		"stringify"
 	],
-	"author": "Chainsulting <hello@chainsulting.de> (https://chainsulting.de)",
-	"license": "",
+	"author": "Softstack <hello@softstack.de> (https://softstack.de)",
+	"license": "MIT",
 	"devDependencies": {
 		"@types/jest": "^27.4.1",
 		"@types/lodash": "^4.14.180",

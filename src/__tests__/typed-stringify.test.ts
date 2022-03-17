@@ -1,8 +1,6 @@
 import BigNumber from 'bignumber.js';
 import { isEqual } from 'lodash';
-import { isITypedValue, parse } from '../parse';
-import { stringify } from '../stringify';
-import { ICustomParse, ICustomStringify, IType, ITypedValue } from '../types';
+import { ICustomParse, ICustomStringify, isITypedValue, IType, ITypedValue, parse, stringify } from '../index';
 
 type ITestType = IType | 'BigNumber';
 

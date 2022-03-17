@@ -1,15 +1,13 @@
-import { ITypedValue } from 'types';
+import { ICustomParse, ITypedValue } from './types';
 
 export const isITypedValue = (obj: unknown): obj is ITypedValue => {
 	const tmpObj = obj as ITypedValue;
 	if (tmpObj && typeof tmpObj === 'object') {
 		const keys = Object.keys(tmpObj);
 		return (
-			keys.length === 2 &&
 			keys.includes('t') &&
-			keys.includes('v') &&
 			typeof tmpObj.t === 'string' &&
-			typeof tmpObj.v === 'string'
+			(keys.length === 1 || (keys.length === 2 && keys.includes('v') && typeof tmpObj.v === 'string'))
 		);
 	}
 	return false;
@@ -17,30 +15,35 @@ export const isITypedValue = (obj: unknown): obj is ITypedValue => {
 
 const convertType = ({ t, v }: ITypedValue): string | number | boolean | bigint | null | undefined | Date => {
 	switch (t) {
+		case 'null':
+			return null;
+		case 'undefined':
+			return undefined;
+	}
+	if (v === undefined) {
+		throw new Error('No value');
+	}
+	switch (t) {
 		case 'string':
 			return v;
 		case 'number':
 			return Number(v);
 		case 'boolean':
-			return JSON.parse(v);
+			return v === '1';
 		case 'bigint':
 			return BigInt(v);
-		case 'null':
-			return null;
-		case 'undefined':
-			return undefined;
-		case 'date':
+		case 'Date':
 			return new Date(v);
 		default:
 			throw new Error('Unknown type');
 	}
 };
 
-const decent = (obj: unknown, customParse?: (obj: unknown) => { use: boolean; data?: unknown }): unknown => {
+const decent = (obj: unknown, customParse?: ICustomParse): unknown => {
 	if (customParse) {
-		const { use, data } = customParse(obj);
-		if (use) {
-			return data;
+		const { useResult, result } = customParse(obj);
+		if (useResult) {
+			return result;
 		}
 	}
 	if (Array.isArray(obj)) {
@@ -58,6 +61,6 @@ const decent = (obj: unknown, customParse?: (obj: unknown) => { use: boolean; da
 	throw new Error('Invalid structure');
 };
 
-export const parse = (s: string, customParse?: (obj: unknown) => { use: boolean; data?: unknown }): unknown => {
+export const parse = (s: string, customParse?: ICustomParse): unknown => {
 	return decent(JSON.parse(s), customParse);
 };

@@ -1,4 +1,0 @@
-.prettierignore
-.prettierrc.json
-typed-stringify-*
-src/test.ts

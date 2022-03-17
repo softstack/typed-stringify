@@ -1,0 +1,72 @@
+import BigNumber from 'bignumber.js';
+import { isEqual } from 'lodash';
+import { isITypedValue, parse } from '../parse';
+import { stringify } from '../stringify';
+import { ICustomParse, ICustomStringify, IType, ITypedValue } from '../types';
+
+type ITestType = IType | 'BigNumber';
+
+const customStringify: ICustomStringify<ITestType> = (obj) => {
+	if (obj instanceof BigNumber) {
+		return { t: 'BigNumber', v: obj.toString() };
+	}
+	return undefined;
+};
+
+const customParse: ICustomParse = (obj) => {
+	if (isITypedValue(obj)) {
+		const { t, v } = obj as ITypedValue<ITestType>;
+		if (t === 'BigNumber') {
+			if (v === undefined) {
+				throw new Error('No value');
+			}
+			return { useResult: true, result: new BigNumber(v) };
+		}
+	}
+	return { useResult: false };
+};
+
+const bigTestObject = {
+	t: {
+		a: 2,
+		b: 'bbbbbbbbbbb',
+		c: null,
+		d: undefined,
+		e: new Date(),
+		f: new BigNumber(12345.6789),
+	},
+	v: {
+		t: '4444',
+		v: 'aaaaaaa',
+	},
+	bla: [1, 2, BigInt(3), 4, 5, new BigNumber(987.654)],
+	hui: [
+		{ ab: 4, ca: 5 },
+		{ ab: 9, ca: 2 },
+	],
+	a: new BigNumber(1.5),
+};
+
+test('Empty object', () => {
+	const obj = {};
+	expect(isEqual(obj, parse(stringify(obj)))).toBe(true);
+});
+
+test('Empty array', () => {
+	const obj = new Array<unknown>();
+	expect(isEqual(obj, parse(stringify(obj)))).toBe(true);
+});
+
+test('Big object', () => {
+	expect(isEqual(bigTestObject, parse(stringify(bigTestObject, customStringify), customParse))).toBe(true);
+});
+
+test('Big array', () => {
+	const obj = (Object.keys(bigTestObject) as Array<keyof typeof bigTestObject>).map((key) => bigTestObject[key]);
+	expect(isEqual(obj, parse(stringify(obj, customStringify), customParse))).toBe(true);
+});
+
+test('BigNumber', () => {
+	const obj = new BigNumber(34345.4243234);
+	expect(isEqual(obj, parse(stringify(obj, customStringify), customParse))).toBe(true);
+});

@@ -22,7 +22,7 @@
 	"keywords": [
 		"stringify"
 	],
-	"author": "Softstack <hello@softstack.de> (https://softstack.de)",
+	"author": "Softstack GmbH <hello@softstack.de> (https://softstack.de)",
 	"license": "MIT",
 	"devDependencies": {
 		"@types/jest": "^27.4.1",

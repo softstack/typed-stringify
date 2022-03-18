@@ -1,7 +1,7 @@
 ## Features
 
 - Stringifies and parses objects while restoring the proper type on parse
-- Build in types: string, number, boolean, null, undefined, bigint and Date
+- Built in types: string, number, boolean, null, undefined, bigint and Date
 - Supports restoring custom types
 
 ## Usage

@@ -22,7 +22,7 @@ console.log(d);
 // { a: 'hello', b: [ 1, 2, 3, 4, 5 ] }
 ```
 
-Example using bignumber.js library
+Example which adds BigNumber
 
 ```javascript
 import BigNumber from 'bignumber.js';

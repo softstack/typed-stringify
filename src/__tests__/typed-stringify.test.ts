@@ -1,19 +1,19 @@
 import BigNumber from 'bignumber.js';
 import { isEqual } from 'lodash';
-import { ICustomParse, ICustomStringify, isITypedValue, IType, ITypedValue, parse, stringify } from '../index';
+import { CustomParse, CustomStringify, isTypedValue, parse, stringify, StringifyType, TypedValue } from '../index';
 
-type ITestType = IType | 'BigNumber';
+type TestType = StringifyType | 'BigNumber';
 
-const customStringify: ICustomStringify<ITestType> = (obj) => {
+const customStringify: CustomStringify<TestType> = (obj) => {
 	if (obj instanceof BigNumber) {
 		return { t: 'BigNumber', v: obj.toString() };
 	}
 	return undefined;
 };
 
-const customParse: ICustomParse = (obj) => {
-	if (isITypedValue(obj)) {
-		const { t, v } = obj as ITypedValue<ITestType>;
+const customParse: CustomParse = (obj) => {
+	if (isTypedValue(obj)) {
+		const { t, v } = obj as TypedValue<TestType>;
 		if (t === 'BigNumber') {
 			if (v === undefined) {
 				throw new Error('No value');
@@ -96,15 +96,36 @@ test('Date', () => {
 });
 
 test('Big object', () => {
-	expect(isEqual(bigTestObject, parse(stringify(bigTestObject, customStringify), customParse))).toBe(true);
+	expect(isEqual(bigTestObject, parse(stringify(bigTestObject, { customStringify }), customParse))).toBe(true);
 });
 
 test('Big array', () => {
 	const obj = (Object.keys(bigTestObject) as Array<keyof typeof bigTestObject>).map((key) => bigTestObject[key]);
-	expect(isEqual(obj, parse(stringify(obj, customStringify), customParse))).toBe(true);
+	expect(isEqual(obj, parse(stringify(obj, { customStringify }), customParse))).toBe(true);
 });
 
 test('BigNumber', () => {
 	const obj = new BigNumber(34345.4243234);
-	expect(isEqual(obj, parse(stringify(obj, customStringify), customParse))).toBe(true);
+	expect(isEqual(obj, parse(stringify(obj, { customStringify }), customParse))).toBe(true);
+});
+
+test('Symbol()', () => {
+	const obj = Symbol();
+	expect(typeof parse(stringify(obj)) === 'symbol').toBe(true);
+});
+
+test('Symbol.for("test")', () => {
+	const obj = Symbol.for('test');
+	expect(isEqual(obj, parse(stringify(obj)))).toBe(true);
+});
+
+test('Function', () => {
+	const obj = () => undefined;
+	expect(isEqual(undefined, parse(stringify(obj, { ignoreDataLoss: true })))).toBe(true);
+});
+
+test('Function without "ignoreDataLoss = true" should throw an error', () => {
+	const obj = () => undefined;
+	expect(() => parse(stringify(obj))).toThrowError();
+	expect(() => parse(stringify(obj, { ignoreDataLoss: false }))).toThrowError();
 });

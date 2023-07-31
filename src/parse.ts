@@ -1,7 +1,7 @@
-import { ICustomParse, ITypedValue } from './types';
+import { CustomParse, TypedValue } from './types';
 
-export const isITypedValue = (obj: unknown): obj is ITypedValue => {
-	const tmpObj = obj as ITypedValue;
+export const isTypedValue = (obj: unknown): obj is TypedValue => {
+	const tmpObj = obj as TypedValue;
 	if (tmpObj && typeof tmpObj === 'object') {
 		const keys = Object.keys(tmpObj);
 		return (
@@ -13,10 +13,14 @@ export const isITypedValue = (obj: unknown): obj is ITypedValue => {
 	return false;
 };
 
-const convertType = ({ t, v }: ITypedValue): string | number | boolean | bigint | null | undefined | Date => {
+const convertType = ({ t, v }: TypedValue): bigint | boolean | Date | null | number | string | symbol | undefined => {
 	switch (t) {
+		case 'function':
+			return undefined;
 		case 'null':
 			return null;
+		case 'symbol':
+			return v === undefined ? Symbol() : Symbol.for(v);
 		case 'undefined':
 			return undefined;
 	}
@@ -24,22 +28,22 @@ const convertType = ({ t, v }: ITypedValue): string | number | boolean | bigint 
 		throw new Error('No value');
 	}
 	switch (t) {
-		case 'string':
-			return v;
-		case 'number':
-			return Number(v);
-		case 'boolean':
-			return v === '1';
 		case 'bigint':
 			return BigInt(v);
+		case 'boolean':
+			return v === '1';
 		case 'Date':
 			return new Date(v);
+		case 'number':
+			return Number(v);
+		case 'string':
+			return v;
 		default:
-			throw new Error('Unknown type');
+			throw new Error(`Unknown type: ${t}`);
 	}
 };
 
-const decent = (obj: unknown, customParse?: ICustomParse): unknown => {
+const decent = (obj: unknown, customParse?: CustomParse): unknown => {
 	if (customParse) {
 		const { useResult, result } = customParse(obj);
 		if (useResult) {
@@ -49,7 +53,7 @@ const decent = (obj: unknown, customParse?: ICustomParse): unknown => {
 	if (Array.isArray(obj)) {
 		return obj.map((obj) => decent(obj, customParse));
 	} else if (obj && typeof obj === 'object') {
-		if (isITypedValue(obj)) {
+		if (isTypedValue(obj)) {
 			return convertType(obj);
 		}
 		const tmpObj: { [key: string]: unknown } = {};
@@ -61,6 +65,6 @@ const decent = (obj: unknown, customParse?: ICustomParse): unknown => {
 	throw new Error('Invalid structure');
 };
 
-export const parse = (s: string, customParse?: ICustomParse): unknown => {
+export const parse = (s: string, customParse?: CustomParse): unknown => {
 	return decent(JSON.parse(s), customParse);
 };

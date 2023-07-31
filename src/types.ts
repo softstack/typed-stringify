@@ -1,10 +1,19 @@
-export type IType = 'string' | 'number' | 'boolean' | 'bigint' | 'null' | 'undefined' | 'Date';
+export type StringifyType =
+	| 'bigint'
+	| 'boolean'
+	| 'Date'
+	| 'function'
+	| 'null'
+	| 'number'
+	| 'string'
+	| 'symbol'
+	| 'undefined';
 
-export interface ITypedValue<T extends string = IType> {
+export interface TypedValue<T extends string = StringifyType> {
 	t: T;
 	v?: string;
 }
 
-export type ICustomStringify<T extends string> = (obj: unknown) => ITypedValue<T> | undefined;
+export type CustomStringify<T extends string> = (obj: unknown) => TypedValue<T> | undefined;
 
-export type ICustomParse = (obj: unknown) => { useResult: boolean; result?: unknown };
+export type CustomParse = (obj: unknown) => { useResult: boolean; result?: unknown };

@@ -1,6 +1,6 @@
-import { ICustomStringify, IType, ITypedValue } from './types';
+import { CustomStringify, StringifyType, TypedValue } from './types';
 
-const convertType = (obj: unknown): ITypedValue => {
+const convertType = (obj: unknown, ignoreDataLoss: boolean): TypedValue => {
 	if (obj === null) {
 		return { t: 'null' };
 	}
@@ -11,40 +11,51 @@ const convertType = (obj: unknown): ITypedValue => {
 		return { t: 'Date', v: obj.toISOString() };
 	}
 	switch (typeof obj) {
-		case 'string':
-			return { t: 'string', v: obj };
-		case 'number':
-			return { t: 'number', v: obj.toString() };
-		case 'boolean':
-			return { t: 'boolean', v: obj ? '1' : '0' };
 		case 'bigint':
 			return { t: 'bigint', v: obj.toString() };
+		case 'boolean':
+			return { t: 'boolean', v: obj ? '1' : '0' };
+		case 'function':
+			if (!ignoreDataLoss) {
+				throw new Error('Function can not be stringified without data loss');
+			}
+			return { t: 'function' };
+		case 'number':
+			return { t: 'number', v: obj.toString() };
+		case 'string':
+			return { t: 'string', v: obj };
+		case 'symbol':
+			return { t: 'symbol', v: Symbol.keyFor(obj) };
 	}
 	throw new Error(`Unknown datatype: ${typeof obj}`);
 };
 
-const decent = <T extends string = IType>(obj: unknown, customStringify?: ICustomStringify<T>): unknown => {
+const decent = <T extends string = StringifyType>(
+	obj: unknown,
+	options: { customStringify?: CustomStringify<T>; ignoreDataLoss?: boolean } = {}
+): unknown => {
+	const { customStringify, ignoreDataLoss = false } = options;
 	if (customStringify) {
 		const tmpObj = customStringify(obj);
-		if (tmpObj !== undefined) {
+		if (tmpObj) {
 			return tmpObj;
 		}
 	}
 	if (Array.isArray(obj)) {
-		return obj.map((obj) => decent(obj, customStringify));
+		return obj.map((obj) => decent(obj, options));
 	} else if (obj && typeof obj === 'object' && !(obj instanceof Date)) {
 		const tmpObj: { [key: string]: unknown } = {};
 		for (const [key, value] of Object.entries(obj)) {
-			tmpObj[key] = decent(value, customStringify);
+			tmpObj[key] = decent(value, options);
 		}
 		return tmpObj;
 	}
-	return convertType(obj);
+	return convertType(obj, ignoreDataLoss);
 };
 
-export const stringify = <T = unknown, U extends string = IType>(
+export const stringify = <T = unknown, U extends string = StringifyType>(
 	obj: T,
-	customStringify?: ICustomStringify<U>
+	options?: { customStringify?: CustomStringify<U>; ignoreDataLoss?: boolean }
 ): string => {
-	return JSON.stringify(decent(obj, customStringify));
+	return JSON.stringify(decent(obj, options));
 };

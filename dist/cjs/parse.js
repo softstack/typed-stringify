@@ -30,6 +30,16 @@ const convertType = ({ t, v }) => {
     }
     switch (t) {
         case 'bigint': {
+            if (v.startsWith('r')) {
+                let radix = Number.parseInt(v[1], 36);
+                if (radix === 1) {
+                    radix = 36;
+                }
+                const negative = v[2] === '-';
+                const startIndex = negative ? 3 : 2;
+                const value = [v.slice(startIndex)].reduce((r, v) => r * BigInt(radix) + BigInt(Number.parseInt(v, radix)), BigInt(0));
+                return negative ? -value : value;
+            }
             return BigInt(v);
         }
         case 'boolean': {

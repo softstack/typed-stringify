@@ -1,6 +1,6 @@
-import { StringifyOptions, StringifyType, TypedValue } from './types';
+import { ConvertTypeOptions, StringifyOptions, StringifyType, TypedValue } from './types';
 
-const convertType = (obj: unknown, ignoreDataLoss: boolean): TypedValue => {
+const convertType = (obj: unknown, { ignoreDataLoss, bigintRadix }: ConvertTypeOptions): TypedValue => {
 	if (obj === null) {
 		return { t: 'null' };
 	}
@@ -12,7 +12,12 @@ const convertType = (obj: unknown, ignoreDataLoss: boolean): TypedValue => {
 	}
 	switch (typeof obj) {
 		case 'bigint': {
-			return { t: 'bigint', v: obj.toString() };
+			if (bigintRadix === 10) {
+				return { t: 'bigint', v: obj.toString() };
+			} else if (bigintRadix === 36) {
+				return { t: 'bigint', v: 'r1' + obj.toString(bigintRadix) };
+			}
+			return { t: 'bigint', v: 'r' + bigintRadix.toString(36) + obj.toString(bigintRadix) };
 		}
 		case 'boolean': {
 			return { t: 'boolean', v: obj ? '1' : '0' };
@@ -37,9 +42,9 @@ const convertType = (obj: unknown, ignoreDataLoss: boolean): TypedValue => {
 };
 
 const decent = <T extends string = StringifyType>(obj: unknown, options: StringifyOptions<T>): unknown => {
-	const { customStringify, ignoreDataLoss = false } = options;
+	const { customStringify, ignoreDataLoss = false, bigintRadix = 10 } = options;
 	if (customStringify) {
-		const tmpObj = customStringify(obj, { ignoreDataLoss });
+		const tmpObj = customStringify(obj, { ignoreDataLoss, bigintRadix });
 		if (tmpObj) {
 			return tmpObj;
 		}
@@ -53,7 +58,7 @@ const decent = <T extends string = StringifyType>(obj: unknown, options: Stringi
 		}
 		return tmpObj;
 	}
-	return convertType(obj, ignoreDataLoss);
+	return convertType(obj, { ignoreDataLoss, bigintRadix });
 };
 
 export const stringify = <T extends string = StringifyType>(obj: unknown, options: StringifyOptions<T> = {}): string =>

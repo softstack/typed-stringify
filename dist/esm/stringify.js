@@ -1,4 +1,4 @@
-const convertType = (obj, ignoreDataLoss) => {
+const convertType = (obj, { ignoreDataLoss, bigintRadix }) => {
     if (obj === null) {
         return { t: 'null' };
     }
@@ -10,7 +10,13 @@ const convertType = (obj, ignoreDataLoss) => {
     }
     switch (typeof obj) {
         case 'bigint': {
-            return { t: 'bigint', v: obj.toString() };
+            if (bigintRadix === 10) {
+                return { t: 'bigint', v: obj.toString() };
+            }
+            else if (bigintRadix === 36) {
+                return { t: 'bigint', v: 'r1' + obj.toString(bigintRadix) };
+            }
+            return { t: 'bigint', v: 'r' + bigintRadix.toString(36) + obj.toString(bigintRadix) };
         }
         case 'boolean': {
             return { t: 'boolean', v: obj ? '1' : '0' };
@@ -34,9 +40,9 @@ const convertType = (obj, ignoreDataLoss) => {
     throw new Error(`Unknown datatype: ${typeof obj}`);
 };
 const decent = (obj, options) => {
-    const { customStringify, ignoreDataLoss = false } = options;
+    const { customStringify, ignoreDataLoss = false, bigintRadix = 10 } = options;
     if (customStringify) {
-        const tmpObj = customStringify(obj, { ignoreDataLoss });
+        const tmpObj = customStringify(obj, { ignoreDataLoss, bigintRadix });
         if (tmpObj) {
             return tmpObj;
         }
@@ -51,7 +57,7 @@ const decent = (obj, options) => {
         }
         return tmpObj;
     }
-    return convertType(obj, ignoreDataLoss);
+    return convertType(obj, { ignoreDataLoss, bigintRadix });
 };
 export const stringify = (obj, options = {}) => JSON.stringify(decent(obj, options));
 //# sourceMappingURL=stringify.js.map

@@ -15,7 +15,8 @@ export interface TypedValue<T extends string = StringifyType> {
 }
 
 export interface CustomStringifyOptions {
-	ignoreDataLoss?: boolean;
+	ignoreDataLoss: boolean;
+	bigintRadix: number;
 }
 
 export type CustomStringify<T extends string> = (
@@ -26,6 +27,12 @@ export type CustomStringify<T extends string> = (
 export interface StringifyOptions<T extends string> {
 	customStringify?: CustomStringify<T>;
 	ignoreDataLoss?: boolean;
+	bigintRadix?: number;
+}
+
+export interface ConvertTypeOptions {
+	ignoreDataLoss: boolean;
+	bigintRadix: number;
 }
 
 export type CustomParse = (obj: TypedValue) => { useResult: boolean; result?: unknown };

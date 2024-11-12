@@ -28,7 +28,7 @@ const bigTestObject = {
 		b: 'bbbbbbbbbbb',
 		c: null, // eslint-disable-line unicorn/no-null
 		d: undefined,
-		e: new Date(),
+		e: new Date(1_731_319_860_000),
 		f: new BigNumber(12_345.6789),
 	},
 	v: {
@@ -88,8 +88,28 @@ test('bigint', () => {
 	expect(isEqual(obj, parse(stringify(obj)))).toBe(true);
 });
 
+test('bigint radix 16', () => {
+	const obj = BigInt(123);
+	expect(isEqual(obj, parse(stringify(obj, { bigintRadix: 16 })))).toBe(true);
+});
+
+test('bigint radix 36', () => {
+	const obj = BigInt(123_456_789);
+	expect(isEqual(obj, parse(stringify(obj, { bigintRadix: 16 })))).toBe(true);
+});
+
+test('negative bigint radix 36', () => {
+	const obj = BigInt(-123_456_789);
+	expect(isEqual(obj, parse(stringify(obj, { bigintRadix: 16 })))).toBe(true);
+});
+
+test('bigint radix 37', () => {
+	const obj = BigInt(123_456_789);
+	expect(() => parse(stringify(obj, { bigintRadix: 37 }))).toThrow(RangeError);
+});
+
 test('Date', () => {
-	const obj = new Date();
+	const obj = new Date(1_731_319_860_000);
 	expect(isEqual(obj, parse(stringify(obj)))).toBe(true);
 });
 
@@ -124,6 +144,6 @@ test('Function', () => {
 
 test('Function without "ignoreDataLoss = true" should throw an error', () => {
 	const obj = (): void => undefined; // eslint-disable-line unicorn/consistent-function-scoping
-	expect(() => parse(stringify(obj))).toThrow();
-	expect(() => parse(stringify(obj, { ignoreDataLoss: false }))).toThrow();
+	expect(() => parse(stringify(obj))).toThrow(Error);
+	expect(() => parse(stringify(obj, { ignoreDataLoss: false }))).toThrow(Error);
 });

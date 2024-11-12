@@ -1,4 +1,4 @@
-import { CustomStringify, StringifyType, TypedValue } from './types';
+import { StringifyOptions, StringifyType, TypedValue } from './types';
 
 const convertType = (obj: unknown, ignoreDataLoss: boolean): TypedValue => {
 	if (obj === null) {
@@ -30,13 +30,10 @@ const convertType = (obj: unknown, ignoreDataLoss: boolean): TypedValue => {
 	throw new Error(`Unknown datatype: ${typeof obj}`);
 };
 
-const decent = <T extends string = StringifyType>(
-	obj: unknown,
-	options: { customStringify?: CustomStringify<T>; ignoreDataLoss?: boolean } = {}
-): unknown => {
+const decent = <T extends string = StringifyType>(obj: unknown, options: StringifyOptions<T>): unknown => {
 	const { customStringify, ignoreDataLoss = false } = options;
 	if (customStringify) {
-		const tmpObj = customStringify(obj);
+		const tmpObj = customStringify(obj, { ignoreDataLoss });
 		if (tmpObj) {
 			return tmpObj;
 		}
@@ -53,9 +50,5 @@ const decent = <T extends string = StringifyType>(
 	return convertType(obj, ignoreDataLoss);
 };
 
-export const stringify = <T = unknown, U extends string = StringifyType>(
-	obj: T,
-	options?: { customStringify?: CustomStringify<U>; ignoreDataLoss?: boolean }
-): string => {
-	return JSON.stringify(decent(obj, options));
-};
+export const stringify = <T extends string = StringifyType>(obj: unknown, options: StringifyOptions<T> = {}): string =>
+	JSON.stringify(decent(obj, options));

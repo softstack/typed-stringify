@@ -1,6 +1,6 @@
 import BigNumber from 'bignumber.js';
 import { isEqual } from 'lodash';
-import { CustomParse, CustomStringify, isTypedValue, parse, stringify, StringifyType, TypedValue } from '../index';
+import { CustomParse, CustomStringify, parse, stringify, StringifyType, TypedValue } from '../index';
 
 type TestType = StringifyType | 'BigNumber';
 
@@ -11,15 +11,13 @@ const customStringify: CustomStringify<TestType> = (obj) => {
 	return undefined;
 };
 
-const customParse: CustomParse = (obj) => {
-	if (isTypedValue(obj)) {
-		const { t, v } = obj as TypedValue<TestType>;
-		if (t === 'BigNumber') {
-			if (v === undefined) {
-				throw new Error('No value');
-			}
-			return { useResult: true, result: new BigNumber(v) };
+const customParse: CustomParse = (typedValue: TypedValue<TestType>) => {
+	const { t, v } = typedValue;
+	if (t === 'BigNumber') {
+		if (v === undefined) {
+			throw new Error('No value');
 		}
+		return { useResult: true, result: new BigNumber(v) };
 	}
 	return { useResult: false };
 };
@@ -96,17 +94,17 @@ test('Date', () => {
 });
 
 test('Big object', () => {
-	expect(isEqual(bigTestObject, parse(stringify(bigTestObject, { customStringify }), customParse))).toBe(true);
+	expect(isEqual(bigTestObject, parse(stringify(bigTestObject, { customStringify }), { customParse }))).toBe(true);
 });
 
 test('Big array', () => {
 	const obj = (Object.keys(bigTestObject) as Array<keyof typeof bigTestObject>).map((key) => bigTestObject[key]);
-	expect(isEqual(obj, parse(stringify(obj, { customStringify }), customParse))).toBe(true);
+	expect(isEqual(obj, parse(stringify(obj, { customStringify }), { customParse }))).toBe(true);
 });
 
 test('BigNumber', () => {
 	const obj = new BigNumber(34345.4243234);
-	expect(isEqual(obj, parse(stringify(obj, { customStringify }), customParse))).toBe(true);
+	expect(isEqual(obj, parse(stringify(obj, { customStringify }), { customParse }))).toBe(true);
 });
 
 test('Symbol()', () => {

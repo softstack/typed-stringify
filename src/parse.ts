@@ -1,14 +1,12 @@
-import { CustomParse, TypedValue } from './types';
+import { ParseOptions, TypedValue } from './types';
+
+const hasOwnProperty = <X, Y extends PropertyKey>(object: X, property: Y): object is X & Record<Y, unknown> =>
+	Object.prototype.hasOwnProperty.call(object, property);
 
 export const isTypedValue = (obj: unknown): obj is TypedValue => {
-	const tmpObj = obj as TypedValue;
-	if (tmpObj && typeof tmpObj === 'object') {
-		const keys = Object.keys(tmpObj);
-		return (
-			keys.includes('t') &&
-			typeof tmpObj.t === 'string' &&
-			(keys.length === 1 || (keys.length === 2 && keys.includes('v') && typeof tmpObj.v === 'string'))
-		);
+	if (typeof obj === 'object' && hasOwnProperty(obj, 't') && typeof obj.t === 'string') {
+		const keys = Object.keys(obj);
+		return keys.length === 1 || (keys.length === 2 && hasOwnProperty(obj, 'v') && typeof obj.v === 'string');
 	}
 	return false;
 };
@@ -43,28 +41,29 @@ const convertType = ({ t, v }: TypedValue): bigint | boolean | Date | null | num
 	}
 };
 
-const decent = (obj: unknown, customParse?: CustomParse): unknown => {
-	if (customParse) {
-		const { useResult, result } = customParse(obj);
-		if (useResult) {
-			return result;
-		}
-	}
+const decent = (obj: unknown, options: ParseOptions): unknown => {
 	if (Array.isArray(obj)) {
-		return obj.map((obj) => decent(obj, customParse));
+		return obj.map((obj) => decent(obj, options));
 	} else if (obj && typeof obj === 'object') {
 		if (isTypedValue(obj)) {
+			const { customParse } = options;
+			if (customParse) {
+				const { useResult, result } = customParse(obj);
+				if (useResult) {
+					return result;
+				}
+			}
 			return convertType(obj);
 		}
 		const tmpObj: { [key: string]: unknown } = {};
 		for (const [key, value] of Object.entries(obj)) {
-			tmpObj[key] = decent(value, customParse);
+			tmpObj[key] = decent(value, options);
 		}
 		return tmpObj;
 	}
 	throw new Error('Invalid structure');
 };
 
-export const parse = (s: string, customParse?: CustomParse): unknown => {
-	return decent(JSON.parse(s), customParse);
+export const parse = (s: string, options: ParseOptions = {}): unknown => {
+	return decent(JSON.parse(s), options);
 };

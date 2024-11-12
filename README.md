@@ -8,7 +8,7 @@
 
 Basic example
 
-```javascript
+```typescript
 import { parse, stringify } from '@softstack/typed-stringify';
 
 const obj = { a: 'hello', b: [1, 2, 3, 4, 5] };
@@ -24,9 +24,17 @@ console.log(d);
 
 Example which adds BigNumber
 
-```javascript
+```typescript
 import BigNumber from 'bignumber.js';
-import { CustomParse, CustomStringify, isTypedValue, parse, stringify, StringifyType, TypedValue } from '../index';
+import {
+	CustomParse,
+	CustomStringify,
+	isTypedValue,
+	parse,
+	stringify,
+	StringifyType,
+	TypedValue,
+} from '@softstack/typed-stringify';
 
 type MyType = StringifyType | 'BigNumber';
 

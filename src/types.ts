@@ -20,7 +20,7 @@ export interface CustomStringifyOptions {
 
 export type CustomStringify<T extends string> = (
 	obj: unknown,
-	options: CustomStringifyOptions
+	options: CustomStringifyOptions,
 ) => TypedValue<T> | undefined;
 
 export interface StringifyOptions<T extends string> {

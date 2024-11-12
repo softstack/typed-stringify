@@ -42,7 +42,7 @@ console.log(obj);
 const s = stringify(obj, { customStringify });
 console.log(s);
 // {"a":{"t":"string","v":"hello"},"b":[{"t":"BigNumber","v":"1"},{"t":"BigNumber","v":"2"},{"t":"BigNumber","v":"3"},{"t":"BigNumber","v":"4"},{"t":"BigNumber","v":"5"}]}
-const d = parse(s, customParse);
+const d = parse(s, { customParse });
 console.log(d);
 // {
 //   a: 'hello',

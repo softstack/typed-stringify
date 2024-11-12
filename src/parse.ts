@@ -13,31 +13,41 @@ export const isTypedValue = (obj: unknown): obj is TypedValue => {
 
 const convertType = ({ t, v }: TypedValue): bigint | boolean | Date | null | number | string | symbol | undefined => {
 	switch (t) {
-		case 'function':
+		case 'function': {
 			return undefined;
-		case 'null':
-			return null;
-		case 'symbol':
+		}
+		case 'null': {
+			return null; // eslint-disable-line unicorn/no-null
+		}
+		case 'symbol': {
 			return v === undefined ? Symbol() : Symbol.for(v);
-		case 'undefined':
+		}
+		case 'undefined': {
 			return undefined;
+		}
 	}
 	if (v === undefined) {
 		throw new Error('No value');
 	}
 	switch (t) {
-		case 'bigint':
+		case 'bigint': {
 			return BigInt(v);
-		case 'boolean':
+		}
+		case 'boolean': {
 			return v === '1';
-		case 'Date':
+		}
+		case 'Date': {
 			return new Date(v);
-		case 'number':
+		}
+		case 'number': {
 			return Number(v);
-		case 'string':
+		}
+		case 'string': {
 			return v;
-		default:
+		}
+		default: {
 			throw new Error(`Unknown type: ${t}`);
+		}
 	}
 };
 

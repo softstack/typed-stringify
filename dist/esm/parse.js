@@ -1,42 +1,48 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.parse = exports.isTypedValue = void 0;
 const hasOwnProperty = (object, property) => Object.prototype.hasOwnProperty.call(object, property);
-const isTypedValue = (obj) => {
+export const isTypedValue = (obj) => {
     if (typeof obj === 'object' && hasOwnProperty(obj, 't') && typeof obj.t === 'string') {
         const keys = Object.keys(obj);
         return keys.length === 1 || (keys.length === 2 && hasOwnProperty(obj, 'v') && typeof obj.v === 'string');
     }
     return false;
 };
-exports.isTypedValue = isTypedValue;
 const convertType = ({ t, v }) => {
     switch (t) {
-        case 'function':
+        case 'function': {
             return undefined;
-        case 'null':
-            return null;
-        case 'symbol':
+        }
+        case 'null': {
+            return null; // eslint-disable-line unicorn/no-null
+        }
+        case 'symbol': {
             return v === undefined ? Symbol() : Symbol.for(v);
-        case 'undefined':
+        }
+        case 'undefined': {
             return undefined;
+        }
     }
     if (v === undefined) {
         throw new Error('No value');
     }
     switch (t) {
-        case 'bigint':
+        case 'bigint': {
             return BigInt(v);
-        case 'boolean':
+        }
+        case 'boolean': {
             return v === '1';
-        case 'Date':
+        }
+        case 'Date': {
             return new Date(v);
-        case 'number':
+        }
+        case 'number': {
             return Number(v);
-        case 'string':
+        }
+        case 'string': {
             return v;
-        default:
+        }
+        default: {
             throw new Error(`Unknown type: ${t}`);
+        }
     }
 };
 const decent = (obj, options) => {
@@ -44,7 +50,7 @@ const decent = (obj, options) => {
         return obj.map((obj) => decent(obj, options));
     }
     else if (obj && typeof obj === 'object') {
-        if ((0, exports.isTypedValue)(obj)) {
+        if (isTypedValue(obj)) {
             const { customParse } = options;
             if (customParse) {
                 const { useResult, result } = customParse(obj);
@@ -62,7 +68,7 @@ const decent = (obj, options) => {
     }
     throw new Error('Invalid structure');
 };
-const parse = (s, options = {}) => {
+export const parse = (s, options = {}) => {
     return decent(JSON.parse(s), options);
 };
-exports.parse = parse;
+//# sourceMappingURL=parse.js.map

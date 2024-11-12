@@ -2,8 +2,17 @@
 	"name": "@softstack/typed-stringify",
 	"version": "2.0.0",
 	"description": "Stringifies and parses objects while restoring the proper type on parse",
-	"main": "lib/index.js",
-	"types": "lib/index.d.ts",
+	"main": "dist/cjs/index.js",
+	"module": "dist/esm/index.js",
+	"types": "dist/types/index.d.ts",
+	"exports": {
+		"require": "./dist/cjs/index.js",
+		"import": "./dist/esm/index.js",
+		"types": "./dist/types/index.d.ts"
+	},
+	"files": [
+		"dist/**/*"
+	],
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/chainsulting/typed-stringify"
@@ -11,9 +20,11 @@
 	"homepage": "https://github.com/chainsulting/typed-stringify#readme",
 	"scripts": {
 		"test": "jest --config jestconfig.json",
-		"build": "tsc",
-		"prettier": "prettier --write \"src/**/*.ts\"",
-		"lint": "eslint ./src --ext .js,.jsx,.ts,.tsx",
+		"prettier": "prettier --write \"./**/*.js\" \"./**/*.json\" \"./**/*.mjs\" \"./**/*.ts\"",
+		"lint": "eslint ./src",
+		"compile": "tsc -b ./tsconfig.cjs.json ./tsconfig.esm.json ./tsconfig.types.json",
+		"build:clean": "rm -rf ./dist",
+		"build": "npm run build:clean && npm run compile",
 		"prepare": "npm run build",
 		"prepublishOnly": "npm test && npm run lint",
 		"preversion": "npm test && npm run lint",
@@ -26,20 +37,18 @@
 	"author": "Softstack GmbH <hello@softstack.de> (https://softstack.de)",
 	"license": "MIT",
 	"devDependencies": {
-		"@types/jest": "^27.4.1",
-		"@types/lodash": "^4.14.180",
-		"@typescript-eslint/eslint-plugin": "^5.15.0",
-		"@typescript-eslint/parser": "^5.15.0",
-		"bignumber.js": "^9.0.2",
-		"eslint": "^8.11.0",
-		"eslint-config-prettier": "^8.5.0",
-		"jest": "^27.5.1",
+		"@types/jest": "^29.5.14",
+		"@types/lodash": "^4.17.13",
+		"bignumber.js": "^9.1.2",
+		"eslint": "^9.14.0",
+		"eslint-config-prettier": "^9.1.0",
+		"eslint-plugin-unicorn": "^56.0.0",
+		"globals": "^15.12.0",
+		"jest": "^29.7.0",
 		"lodash": "^4.17.21",
-		"prettier": "^2.6.0",
-		"ts-jest": "^27.1.3",
-		"typescript": "^4.6.2"
-	},
-	"files": [
-		"lib/**/*"
-	]
+		"prettier": "^3.3.3",
+		"ts-jest": "^29.2.5",
+		"typescript": "^5.6.3",
+		"typescript-eslint": "^8.14.0"
+	}
 }

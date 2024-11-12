@@ -26,10 +26,10 @@ const bigTestObject = {
 	t: {
 		a: 2,
 		b: 'bbbbbbbbbbb',
-		c: null,
+		c: null, // eslint-disable-line unicorn/no-null
 		d: undefined,
 		e: new Date(),
-		f: new BigNumber(12345.6789),
+		f: new BigNumber(12_345.6789),
 	},
 	v: {
 		t: '4444',
@@ -54,7 +54,7 @@ test('Empty array', () => {
 });
 
 test('null', () => {
-	const obj = null;
+	const obj = null; // eslint-disable-line unicorn/no-null
 	expect(isEqual(obj, parse(stringify(obj)))).toBe(true);
 });
 
@@ -103,7 +103,7 @@ test('Big array', () => {
 });
 
 test('BigNumber', () => {
-	const obj = new BigNumber(34345.4243234);
+	const obj = new BigNumber(34_345.424_323_4);
 	expect(isEqual(obj, parse(stringify(obj, { customStringify }), { customParse }))).toBe(true);
 });
 
@@ -118,12 +118,12 @@ test('Symbol.for("test")', () => {
 });
 
 test('Function', () => {
-	const obj = () => undefined;
+	const obj = (): void => undefined;
 	expect(isEqual(undefined, parse(stringify(obj, { ignoreDataLoss: true })))).toBe(true);
 });
 
 test('Function without "ignoreDataLoss = true" should throw an error', () => {
-	const obj = () => undefined;
-	expect(() => parse(stringify(obj))).toThrowError();
-	expect(() => parse(stringify(obj, { ignoreDataLoss: false }))).toThrowError();
+	const obj = (): void => undefined; // eslint-disable-line unicorn/consistent-function-scoping
+	expect(() => parse(stringify(obj))).toThrow();
+	expect(() => parse(stringify(obj, { ignoreDataLoss: false }))).toThrow();
 });

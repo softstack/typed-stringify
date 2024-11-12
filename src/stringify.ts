@@ -11,21 +11,27 @@ const convertType = (obj: unknown, ignoreDataLoss: boolean): TypedValue => {
 		return { t: 'Date', v: obj.toISOString() };
 	}
 	switch (typeof obj) {
-		case 'bigint':
+		case 'bigint': {
 			return { t: 'bigint', v: obj.toString() };
-		case 'boolean':
+		}
+		case 'boolean': {
 			return { t: 'boolean', v: obj ? '1' : '0' };
-		case 'function':
+		}
+		case 'function': {
 			if (!ignoreDataLoss) {
 				throw new Error('Function can not be stringified without data loss');
 			}
 			return { t: 'function' };
-		case 'number':
+		}
+		case 'number': {
 			return { t: 'number', v: obj.toString() };
-		case 'string':
+		}
+		case 'string': {
 			return { t: 'string', v: obj };
-		case 'symbol':
+		}
+		case 'symbol': {
 			return { t: 'symbol', v: Symbol.keyFor(obj) };
+		}
 	}
 	throw new Error(`Unknown datatype: ${typeof obj}`);
 };

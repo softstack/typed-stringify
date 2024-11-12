@@ -1,39 +1,4 @@
-## Features
-
-- Stringifies and parses objects while restoring the proper type on parse
-- Built in types: bigint, boolean, Date, number, null, string, symbol and undefined
-- Supports restoring custom types
-
-## Usage
-
-Basic example
-
-```typescript
-import { parse, stringify } from '@softstack/typed-stringify';
-
-const obj = { a: 'hello', b: [1, 2, 3, 4, 5] };
-console.log(obj);
-/*
-{ a: 'hello', b: [ 1, 2, 3, 4, 5 ] }
-*/
-
-const s = stringify(obj);
-console.log(s);
-/*
-{"a":{"t":"string","v":"hello"},"b":[{"t":"number","v":"1"},{"t":"number","v":"2"},{"t":"number","v":"3"},{"t":"number","v":"4"},{"t":"number","v":"5"}]}
-*/
-
-const d = parse(s);
-console.log(d);
-/*
-{ a: 'hello', b: [ 1, 2, 3, 4, 5 ] }
-*/
-```
-
-Example which adds Buffer
-
-```typescript
-import { CustomParse, CustomStringify, parse, stringify, StringifyType, TypedValue } from '@softstack/typed-stringify';
+import { CustomParse, CustomStringify, parse, stringify, StringifyType, TypedValue } from '../index';
 
 type MyType = StringifyType | 'Buffer';
 
@@ -93,4 +58,3 @@ console.log(d);
   ]
 }
 */
-```

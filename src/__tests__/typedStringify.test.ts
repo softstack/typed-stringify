@@ -188,3 +188,8 @@ test('Function without "ignoreFunctions = true" should throw an error', () => {
 	expect(() => parse(stringify(obj))).toThrow(Error);
 	expect(() => parse(stringify(obj, { ignoreFunctions: false }))).toThrow(Error);
 });
+
+test('Set', () => {
+	const obj = new Set([1, '2', 3, 4, 5]);
+	expect(isEqual(obj, parse(stringify(obj)))).toBe(true);
+});

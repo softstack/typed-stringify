@@ -1,7 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.stringify = void 0;
-const convertType = (obj, { bigintRadix, dateFormat, ignoreFunctions, skipNull, skipUndefined }) => {
+const convertType = (obj, options) => {
+    const { bigintRadix, dateFormat, ignoreFunctions, skipNull, skipUndefined } = options;
     if (obj === null) {
         return skipNull ? undefined : { t: 'null' };
     }
@@ -10,6 +11,9 @@ const convertType = (obj, { bigintRadix, dateFormat, ignoreFunctions, skipNull, 
     }
     else if (obj instanceof Date) {
         return { t: 'Date', v: dateFormat === 'iso' ? obj.toISOString() : obj.getTime().toString() };
+    }
+    else if (obj instanceof Set) {
+        return { t: 'Set', v: (0, exports.stringify)([...obj], options) };
     }
     switch (typeof obj) {
         case 'bigint': {
@@ -53,7 +57,7 @@ const decent = (obj, options) => {
     if (Array.isArray(obj)) {
         return obj.map((obj) => decent(obj, options));
     }
-    else if (obj && typeof obj === 'object' && !(obj instanceof Date)) {
+    else if (obj && typeof obj === 'object' && !(obj instanceof Date) && !(obj instanceof Set)) {
         const tmpObj = {};
         for (const [key, value] of Object.entries(obj)) {
             tmpObj[key] = decent(value, options);

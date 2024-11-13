@@ -1,4 +1,4 @@
-import { ParseOptions, StringifyType, TypedValue } from './types';
+import { CustomParseOptions, ParseOptions, StringifyType, TypedValue } from './types';
 
 const hasOwnProperty = <X, Y extends PropertyKey>(object: X, property: Y): object is X & Record<Y, unknown> =>
 	Object.prototype.hasOwnProperty.call(object, property);
@@ -11,10 +11,10 @@ const isTypedValue = <T extends string>(obj: unknown): obj is TypedValue<T> => {
 	return false;
 };
 
-const convertType = ({
-	t,
-	v,
-}: TypedValue<StringifyType>): bigint | boolean | Date | null | number | string | symbol | undefined => {
+const convertType = <T extends string>(
+	{ t, v }: TypedValue<StringifyType>,
+	options: ParseOptions<T>,
+): bigint | boolean | Date | null | number | Set<unknown> | string | symbol | undefined => {
 	switch (t) {
 		case 'function': {
 			return undefined;
@@ -58,6 +58,9 @@ const convertType = ({
 		case 'number': {
 			return Number(v);
 		}
+		case 'Set': {
+			return new Set(parse(v, options) as Array<unknown>);
+		}
 		case 'string': {
 			return v;
 		}
@@ -74,12 +77,12 @@ const decent = <T extends string>(obj: unknown, options: ParseOptions<T>): unkno
 		if (isTypedValue(obj)) {
 			const { customParse } = options;
 			if (customParse) {
-				const { useResult, result } = customParse(obj as TypedValue<T>);
+				const { useResult, result } = customParse(obj as TypedValue<T>, options as CustomParseOptions<T>);
 				if (useResult) {
 					return result;
 				}
 			}
-			return convertType(obj as TypedValue<StringifyType>);
+			return convertType(obj as TypedValue<StringifyType>, options);
 		}
 		const tmpObj: { [key: string]: unknown } = {};
 		for (const [key, value] of Object.entries(obj)) {

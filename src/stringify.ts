@@ -1,15 +1,24 @@
-import { ConvertTypeOptions, DecentOptions, StringifyOptions, StringifyType, TypedValue } from './types';
+import {
+	CustomStringifyOptions,
+	DefaultedStringifyOptions,
+	StringifyOptions,
+	StringifyType,
+	TypedValue,
+} from './types';
 
-const convertType = (
+const convertType = <T extends string>(
 	obj: unknown,
-	{ bigintRadix, dateFormat, ignoreFunctions, skipNull, skipUndefined }: ConvertTypeOptions,
+	options: DefaultedStringifyOptions<T>,
 ): TypedValue<StringifyType> | undefined => {
+	const { bigintRadix, dateFormat, ignoreFunctions, skipNull, skipUndefined } = options;
 	if (obj === null) {
 		return skipNull ? undefined : { t: 'null' };
 	} else if (obj === undefined) {
 		return skipUndefined ? undefined : { t: 'undefined' };
 	} else if (obj instanceof Date) {
 		return { t: 'Date', v: dateFormat === 'iso' ? obj.toISOString() : obj.getTime().toString() };
+	} else if (obj instanceof Set) {
+		return { t: 'Set', v: stringify([...obj], options) };
 	}
 	switch (typeof obj) {
 		case 'bigint': {
@@ -43,17 +52,17 @@ const convertType = (
 	throw new Error(`Unknown datatype: ${typeof obj}`);
 };
 
-const decent = <T extends string>(obj: unknown, options: DecentOptions<T>): unknown => {
+const decent = <T extends string>(obj: unknown, options: DefaultedStringifyOptions<T>): unknown => {
 	const { customStringify } = options;
 	if (customStringify) {
-		const { useResult, result } = customStringify(obj, options);
+		const { useResult, result } = customStringify(obj, options as CustomStringifyOptions<T>);
 		if (useResult) {
 			return result;
 		}
 	}
 	if (Array.isArray(obj)) {
 		return obj.map((obj) => decent(obj, options));
-	} else if (obj && typeof obj === 'object' && !(obj instanceof Date)) {
+	} else if (obj && typeof obj === 'object' && !(obj instanceof Date) && !(obj instanceof Set)) {
 		const tmpObj: { [key: string]: unknown } = {};
 		for (const [key, value] of Object.entries(obj)) {
 			tmpObj[key] = decent(value, options);

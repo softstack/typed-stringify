@@ -9,7 +9,7 @@ const isTypedValue = (obj) => {
     }
     return false;
 };
-const convertType = ({ t, v, }) => {
+const convertType = ({ t, v }, options) => {
     switch (t) {
         case 'function': {
             return undefined;
@@ -50,6 +50,9 @@ const convertType = ({ t, v, }) => {
         case 'number': {
             return Number(v);
         }
+        case 'Set': {
+            return new Set((0, exports.parse)(v, options));
+        }
         case 'string': {
             return v;
         }
@@ -66,12 +69,12 @@ const decent = (obj, options) => {
         if (isTypedValue(obj)) {
             const { customParse } = options;
             if (customParse) {
-                const { useResult, result } = customParse(obj);
+                const { useResult, result } = customParse(obj, options);
                 if (useResult) {
                     return result;
                 }
             }
-            return convertType(obj);
+            return convertType(obj, options);
         }
         const tmpObj = {};
         for (const [key, value] of Object.entries(obj)) {

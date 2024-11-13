@@ -5,6 +5,7 @@ export type StringifyType =
 	| 'function'
 	| 'null'
 	| 'number'
+	| 'Set'
 	| 'string'
 	| 'symbol'
 	| 'undefined';
@@ -16,7 +17,9 @@ export interface TypedValue<T extends string> {
 	v?: string;
 }
 
-export interface BaseOptions {
+// Start stringify
+
+export interface BaseStringifyOptions {
 	bigintRadix: number;
 	dateFormat: DateFormat;
 	ignoreFunctions: boolean;
@@ -24,29 +27,35 @@ export interface BaseOptions {
 	skipUndefined: boolean;
 }
 
-export type CustomStringifyOptions = BaseOptions;
+export interface CustomStringifyOptions<T extends string> extends BaseStringifyOptions {
+	customStringify: CustomStringify<T>;
+}
 
 export type CustomStringifyResult<T extends string> = { useResult: boolean; result?: TypedValue<T> };
 
 export type CustomStringify<T extends string> = (
 	obj: unknown,
-	options: CustomStringifyOptions,
+	options: CustomStringifyOptions<T>,
 ) => CustomStringifyResult<T>;
 
-export interface DecentOptions<T extends string> extends BaseOptions {
+export interface DefaultedStringifyOptions<T extends string> extends BaseStringifyOptions {
 	customStringify?: CustomStringify<T>;
 }
 
-export interface StringifyOptions<T extends string> extends Partial<BaseOptions> {
-	customStringify?: CustomStringify<T>;
-}
+export type StringifyOptions<T extends string> = Partial<DefaultedStringifyOptions<T>>;
 
-export type ConvertTypeOptions = BaseOptions;
+// End stringify
+
+// Start parse
+
+export interface CustomParseOptions<T extends string> {
+	customParse: CustomParse<T>;
+}
 
 export type CustomParseResult = { useResult: boolean; result?: unknown };
 
-export type CustomParse<T extends string> = (obj: TypedValue<T>) => CustomParseResult;
+export type CustomParse<T extends string> = (obj: TypedValue<T>, options: CustomParseOptions<T>) => CustomParseResult;
 
-export interface ParseOptions<T extends string> {
-	customParse?: CustomParse<T>;
-}
+export type ParseOptions<T extends string> = Partial<CustomParseOptions<T>>;
+
+// End parse

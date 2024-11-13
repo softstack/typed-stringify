@@ -16,6 +16,7 @@
   - Array
   - Date
   - Object
+  - Set
 
 ## API
 

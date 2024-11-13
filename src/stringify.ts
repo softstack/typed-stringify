@@ -1,14 +1,15 @@
-import { ConvertTypeOptions, StringifyOptions, StringifyType, TypedValue } from './types';
+import { ConvertTypeOptions, DecentOptions, StringifyOptions, StringifyType, TypedValue } from './types';
 
-const convertType = (obj: unknown, { ignoreFunctions, bigintRadix }: ConvertTypeOptions): TypedValue => {
+const convertType = (
+	obj: unknown,
+	{ bigintRadix, dateFormat, ignoreFunctions, skipNull, skipUndefined }: ConvertTypeOptions,
+): TypedValue | undefined => {
 	if (obj === null) {
-		return { t: 'null' };
-	}
-	if (obj === undefined) {
-		return { t: 'undefined' };
-	}
-	if (obj instanceof Date) {
-		return { t: 'Date', v: obj.toISOString() };
+		return skipNull ? undefined : { t: 'null' };
+	} else if (obj === undefined) {
+		return skipUndefined ? undefined : { t: 'undefined' };
+	} else if (obj instanceof Date) {
+		return { t: 'Date', v: dateFormat === 'iso' ? obj.toISOString() : obj.getTime().toString() };
 	}
 	switch (typeof obj) {
 		case 'bigint': {
@@ -25,7 +26,7 @@ const convertType = (obj: unknown, { ignoreFunctions, bigintRadix }: ConvertType
 		}
 		case 'function': {
 			if (!ignoreFunctions) {
-				throw new Error('Function can not be stringified without data loss');
+				throw new Error('Functions can not be stringified');
 			}
 			return { t: 'function' };
 		}
@@ -42,12 +43,12 @@ const convertType = (obj: unknown, { ignoreFunctions, bigintRadix }: ConvertType
 	throw new Error(`Unknown datatype: ${typeof obj}`);
 };
 
-const decent = <T extends string = StringifyType>(obj: unknown, options: StringifyOptions<T>): unknown => {
-	const { customStringify, ignoreFunctions = false, bigintRadix = 10 } = options;
+const decent = <T extends string = StringifyType>(obj: unknown, options: DecentOptions<T>): unknown => {
+	const { customStringify } = options;
 	if (customStringify) {
-		const tmpObj = customStringify(obj, { ignoreFunctions, bigintRadix });
-		if (tmpObj) {
-			return tmpObj;
+		const { useResult, result } = customStringify(obj, options);
+		if (useResult) {
+			return result;
 		}
 	}
 	if (Array.isArray(obj)) {
@@ -59,8 +60,17 @@ const decent = <T extends string = StringifyType>(obj: unknown, options: Stringi
 		}
 		return tmpObj;
 	}
-	return convertType(obj, { ignoreFunctions, bigintRadix });
+	return convertType(obj, options);
 };
 
 export const stringify = <T extends string = StringifyType>(obj: unknown, options: StringifyOptions<T> = {}): string =>
-	JSON.stringify(decent(obj, options));
+	JSON.stringify(
+		decent(obj, {
+			bigintRadix: options.bigintRadix ?? 10,
+			customStringify: options.customStringify,
+			dateFormat: options.dateFormat ?? 'iso',
+			ignoreFunctions: options.ignoreFunctions ?? false,
+			skipNull: options.skipNull ?? false,
+			skipUndefined: options.skipUndefined ?? false,
+		}),
+	);

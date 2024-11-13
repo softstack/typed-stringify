@@ -1,16 +1,16 @@
 import BigNumber from 'bignumber.js';
-import { isEqual } from 'lodash';
+import { cloneDeep, isEqual } from 'lodash';
 import { CustomParse, CustomStringify, parse, stringify, StringifyType, TypedValue } from '../index';
 
 type TestType = StringifyType | 'BigNumber' | 'Buffer';
 
 const customStringify: CustomStringify<TestType> = (obj) => {
 	if (obj instanceof BigNumber) {
-		return { t: 'BigNumber', v: obj.toString() };
+		return { useResult: true, result: { t: 'BigNumber', v: obj.toString() } };
 	} else if (obj instanceof Buffer) {
-		return { t: 'Buffer', v: obj.toString('base64') };
+		return { useResult: true, result: { t: 'Buffer', v: obj.toString('base64') } };
 	}
-	return undefined;
+	return { useResult: false };
 };
 
 const customParse: CustomParse = (typedValue: TypedValue<TestType>) => {
@@ -18,13 +18,13 @@ const customParse: CustomParse = (typedValue: TypedValue<TestType>) => {
 	switch (t) {
 		case 'BigNumber': {
 			if (v === undefined) {
-				throw new Error("Value of BigNumber can't be undefined");
+				throw new Error('Value of BigNumber can not be undefined');
 			}
 			return { useResult: true, result: new BigNumber(v) };
 		}
 		case 'Buffer': {
 			if (v === undefined) {
-				throw new Error("Value of Buffer can't be undefined");
+				throw new Error('Value of Buffer can not be undefined');
 			}
 			return { useResult: true, result: Buffer.from(v, 'base64') };
 		}
@@ -83,6 +83,11 @@ test('string', () => {
 	expect(isEqual(obj, parse(stringify(obj)))).toBe(true);
 });
 
+test('string with quotes', () => {
+	const obj = '"hello"';
+	expect(isEqual(obj, parse(stringify(obj)))).toBe(true);
+});
+
 test('number', () => {
 	const obj = 123;
 	expect(isEqual(obj, parse(stringify(obj)))).toBe(true);
@@ -123,8 +128,29 @@ test('Date', () => {
 	expect(isEqual(obj, parse(stringify(obj)))).toBe(true);
 });
 
+test('Date with dateFormat = "number"', () => {
+	const obj = new Date(1_731_319_860_000);
+	expect(isEqual(obj, parse(stringify(obj, { dateFormat: 'number' })))).toBe(true);
+});
+
 test('Big object', () => {
 	expect(isEqual(bigTestObject, parse(stringify(bigTestObject, { customStringify }), { customParse }))).toBe(true);
+});
+
+test('Big object with skipNull', () => {
+	const obj = cloneDeep(bigTestObject);
+	delete (obj.t as any).c; // eslint-disable-line @typescript-eslint/no-explicit-any
+	expect(isEqual(obj, parse(stringify(bigTestObject, { customStringify, skipNull: true }), { customParse }))).toBe(
+		true,
+	);
+});
+
+test('Big object with skipUndefined', () => {
+	const obj = cloneDeep(bigTestObject);
+	delete (obj.t as any).d; // eslint-disable-line @typescript-eslint/no-explicit-any
+	expect(isEqual(obj, parse(stringify(bigTestObject, { customStringify, skipUndefined: true }), { customParse }))).toBe(
+		true,
+	);
 });
 
 test('Big array', () => {

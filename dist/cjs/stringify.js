@@ -1,15 +1,15 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.stringify = void 0;
-const convertType = (obj, { ignoreFunctions, bigintRadix }) => {
+const convertType = (obj, { bigintRadix, dateFormat, ignoreFunctions, skipNull, skipUndefined }) => {
     if (obj === null) {
-        return { t: 'null' };
+        return skipNull ? undefined : { t: 'null' };
     }
-    if (obj === undefined) {
-        return { t: 'undefined' };
+    else if (obj === undefined) {
+        return skipUndefined ? undefined : { t: 'undefined' };
     }
-    if (obj instanceof Date) {
-        return { t: 'Date', v: obj.toISOString() };
+    else if (obj instanceof Date) {
+        return { t: 'Date', v: dateFormat === 'iso' ? obj.toISOString() : obj.getTime().toString() };
     }
     switch (typeof obj) {
         case 'bigint': {
@@ -26,7 +26,7 @@ const convertType = (obj, { ignoreFunctions, bigintRadix }) => {
         }
         case 'function': {
             if (!ignoreFunctions) {
-                throw new Error('Function can not be stringified without data loss');
+                throw new Error('Functions can not be stringified');
             }
             return { t: 'function' };
         }
@@ -43,11 +43,11 @@ const convertType = (obj, { ignoreFunctions, bigintRadix }) => {
     throw new Error(`Unknown datatype: ${typeof obj}`);
 };
 const decent = (obj, options) => {
-    const { customStringify, ignoreFunctions = false, bigintRadix = 10 } = options;
+    const { customStringify } = options;
     if (customStringify) {
-        const tmpObj = customStringify(obj, { ignoreFunctions, bigintRadix });
-        if (tmpObj) {
-            return tmpObj;
+        const { useResult, result } = customStringify(obj, options);
+        if (useResult) {
+            return result;
         }
     }
     if (Array.isArray(obj)) {
@@ -60,8 +60,18 @@ const decent = (obj, options) => {
         }
         return tmpObj;
     }
-    return convertType(obj, { ignoreFunctions, bigintRadix });
+    return convertType(obj, options);
 };
-const stringify = (obj, options = {}) => JSON.stringify(decent(obj, options));
+const stringify = (obj, options = {}) => {
+    var _a, _b, _c, _d, _e;
+    return JSON.stringify(decent(obj, {
+        bigintRadix: (_a = options.bigintRadix) !== null && _a !== void 0 ? _a : 10,
+        customStringify: options.customStringify,
+        dateFormat: (_b = options.dateFormat) !== null && _b !== void 0 ? _b : 'iso',
+        ignoreFunctions: (_c = options.ignoreFunctions) !== null && _c !== void 0 ? _c : false,
+        skipNull: (_d = options.skipNull) !== null && _d !== void 0 ? _d : false,
+        skipUndefined: (_e = options.skipUndefined) !== null && _e !== void 0 ? _e : false,
+    }));
+};
 exports.stringify = stringify;
 //# sourceMappingURL=stringify.js.map

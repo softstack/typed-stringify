@@ -42,7 +42,7 @@ const convertType = ({ t, v }) => {
             return v === '1';
         }
         case 'Date': {
-            return new Date(v);
+            return v.includes('T') ? new Date(v) : new Date(Number(v));
         }
         case 'number': {
             return Number(v);

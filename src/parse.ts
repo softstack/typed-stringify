@@ -50,7 +50,7 @@ const convertType = ({ t, v }: TypedValue): bigint | boolean | Date | null | num
 			return v === '1';
 		}
 		case 'Date': {
-			return new Date(v);
+			return v.includes('T') ? new Date(v) : new Date(Number(v));
 		}
 		case 'number': {
 			return Number(v);

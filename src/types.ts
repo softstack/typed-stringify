@@ -15,7 +15,7 @@ export interface TypedValue<T extends string = StringifyType> {
 }
 
 export interface CustomStringifyOptions {
-	ignoreDataLoss: boolean;
+	ignoreFunctions: boolean;
 	bigintRadix: number;
 }
 
@@ -26,12 +26,12 @@ export type CustomStringify<T extends string> = (
 
 export interface StringifyOptions<T extends string> {
 	customStringify?: CustomStringify<T>;
-	ignoreDataLoss?: boolean;
+	ignoreFunctions?: boolean;
 	bigintRadix?: number;
 }
 
 export interface ConvertTypeOptions {
-	ignoreDataLoss: boolean;
+	ignoreFunctions: boolean;
 	bigintRadix: number;
 }
 

@@ -1,6 +1,6 @@
 import { ConvertTypeOptions, StringifyOptions, StringifyType, TypedValue } from './types';
 
-const convertType = (obj: unknown, { ignoreDataLoss, bigintRadix }: ConvertTypeOptions): TypedValue => {
+const convertType = (obj: unknown, { ignoreFunctions, bigintRadix }: ConvertTypeOptions): TypedValue => {
 	if (obj === null) {
 		return { t: 'null' };
 	}
@@ -12,18 +12,19 @@ const convertType = (obj: unknown, { ignoreDataLoss, bigintRadix }: ConvertTypeO
 	}
 	switch (typeof obj) {
 		case 'bigint': {
+			if (!Number.isInteger(bigintRadix) || bigintRadix < 2 || bigintRadix > 36) {
+				throw new RangeError('bigintRadix must be an integer between 2 and 36');
+			}
 			if (bigintRadix === 10) {
 				return { t: 'bigint', v: obj.toString() };
-			} else if (bigintRadix === 36) {
-				return { t: 'bigint', v: 'r1' + obj.toString(bigintRadix) };
 			}
-			return { t: 'bigint', v: 'r' + bigintRadix.toString(36) + obj.toString(bigintRadix) };
+			return { t: 'bigint', v: 'r' + bigintRadix.toString(36).slice(-1) + obj.toString(bigintRadix) };
 		}
 		case 'boolean': {
 			return { t: 'boolean', v: obj ? '1' : '0' };
 		}
 		case 'function': {
-			if (!ignoreDataLoss) {
+			if (!ignoreFunctions) {
 				throw new Error('Function can not be stringified without data loss');
 			}
 			return { t: 'function' };
@@ -42,9 +43,9 @@ const convertType = (obj: unknown, { ignoreDataLoss, bigintRadix }: ConvertTypeO
 };
 
 const decent = <T extends string = StringifyType>(obj: unknown, options: StringifyOptions<T>): unknown => {
-	const { customStringify, ignoreDataLoss = false, bigintRadix = 10 } = options;
+	const { customStringify, ignoreFunctions = false, bigintRadix = 10 } = options;
 	if (customStringify) {
-		const tmpObj = customStringify(obj, { ignoreDataLoss, bigintRadix });
+		const tmpObj = customStringify(obj, { ignoreFunctions, bigintRadix });
 		if (tmpObj) {
 			return tmpObj;
 		}
@@ -58,7 +59,7 @@ const decent = <T extends string = StringifyType>(obj: unknown, options: Stringi
 		}
 		return tmpObj;
 	}
-	return convertType(obj, { ignoreDataLoss, bigintRadix });
+	return convertType(obj, { ignoreFunctions, bigintRadix });
 };
 
 export const stringify = <T extends string = StringifyType>(obj: unknown, options: StringifyOptions<T> = {}): string =>

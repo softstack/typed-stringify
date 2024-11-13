@@ -2,22 +2,32 @@ import BigNumber from 'bignumber.js';
 import { isEqual } from 'lodash';
 import { CustomParse, CustomStringify, parse, stringify, StringifyType, TypedValue } from '../index';
 
-type TestType = StringifyType | 'BigNumber';
+type TestType = StringifyType | 'BigNumber' | 'Buffer';
 
 const customStringify: CustomStringify<TestType> = (obj) => {
 	if (obj instanceof BigNumber) {
 		return { t: 'BigNumber', v: obj.toString() };
+	} else if (obj instanceof Buffer) {
+		return { t: 'Buffer', v: obj.toString('base64') };
 	}
 	return undefined;
 };
 
 const customParse: CustomParse = (typedValue: TypedValue<TestType>) => {
 	const { t, v } = typedValue;
-	if (t === 'BigNumber') {
-		if (v === undefined) {
-			throw new Error('No value');
+	switch (t) {
+		case 'BigNumber': {
+			if (v === undefined) {
+				throw new Error("Value of BigNumber can't be undefined");
+			}
+			return { useResult: true, result: new BigNumber(v) };
 		}
-		return { useResult: true, result: new BigNumber(v) };
+		case 'Buffer': {
+			if (v === undefined) {
+				throw new Error("Value of Buffer can't be undefined");
+			}
+			return { useResult: true, result: Buffer.from(v, 'base64') };
+		}
 	}
 	return { useResult: false };
 };
@@ -127,6 +137,11 @@ test('BigNumber', () => {
 	expect(isEqual(obj, parse(stringify(obj, { customStringify }), { customParse }))).toBe(true);
 });
 
+test('Buffer', () => {
+	const obj = Buffer.from('Hello world!');
+	expect(isEqual(obj, parse(stringify(obj, { customStringify }), { customParse }))).toBe(true);
+});
+
 test('Symbol()', () => {
 	const obj = Symbol();
 	expect(typeof parse(stringify(obj)) === 'symbol').toBe(true);
@@ -139,11 +154,11 @@ test('Symbol.for("test")', () => {
 
 test('Function', () => {
 	const obj = (): void => undefined;
-	expect(isEqual(undefined, parse(stringify(obj, { ignoreDataLoss: true })))).toBe(true);
+	expect(isEqual(undefined, parse(stringify(obj, { ignoreFunctions: true })))).toBe(true);
 });
 
-test('Function without "ignoreDataLoss = true" should throw an error', () => {
+test('Function without "ignoreFunctions = true" should throw an error', () => {
 	const obj = (): void => undefined; // eslint-disable-line unicorn/consistent-function-scoping
 	expect(() => parse(stringify(obj))).toThrow(Error);
-	expect(() => parse(stringify(obj, { ignoreDataLoss: false }))).toThrow(Error);
+	expect(() => parse(stringify(obj, { ignoreFunctions: false }))).toThrow(Error);
 });

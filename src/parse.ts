@@ -33,7 +33,7 @@ const convertType = ({ t, v }: TypedValue): bigint | boolean | Date | null | num
 		case 'bigint': {
 			if (v.startsWith('r')) {
 				let radix = Number.parseInt(v[1], 36);
-				if (radix === 1) {
+				if (radix === 0) {
 					radix = 36;
 				}
 				const negative = v[2] === '-';

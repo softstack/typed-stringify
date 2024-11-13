@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.stringify = void 0;
-const convertType = (obj, { ignoreDataLoss, bigintRadix }) => {
+const convertType = (obj, { ignoreFunctions, bigintRadix }) => {
     if (obj === null) {
         return { t: 'null' };
     }
@@ -13,19 +13,19 @@ const convertType = (obj, { ignoreDataLoss, bigintRadix }) => {
     }
     switch (typeof obj) {
         case 'bigint': {
+            if (!Number.isInteger(bigintRadix) || bigintRadix < 2 || bigintRadix > 36) {
+                throw new RangeError('bigintRadix must be an integer between 2 and 36');
+            }
             if (bigintRadix === 10) {
                 return { t: 'bigint', v: obj.toString() };
             }
-            else if (bigintRadix === 36) {
-                return { t: 'bigint', v: 'r1' + obj.toString(bigintRadix) };
-            }
-            return { t: 'bigint', v: 'r' + bigintRadix.toString(36) + obj.toString(bigintRadix) };
+            return { t: 'bigint', v: 'r' + bigintRadix.toString(36).slice(-1) + obj.toString(bigintRadix) };
         }
         case 'boolean': {
             return { t: 'boolean', v: obj ? '1' : '0' };
         }
         case 'function': {
-            if (!ignoreDataLoss) {
+            if (!ignoreFunctions) {
                 throw new Error('Function can not be stringified without data loss');
             }
             return { t: 'function' };
@@ -43,9 +43,9 @@ const convertType = (obj, { ignoreDataLoss, bigintRadix }) => {
     throw new Error(`Unknown datatype: ${typeof obj}`);
 };
 const decent = (obj, options) => {
-    const { customStringify, ignoreDataLoss = false, bigintRadix = 10 } = options;
+    const { customStringify, ignoreFunctions = false, bigintRadix = 10 } = options;
     if (customStringify) {
-        const tmpObj = customStringify(obj, { ignoreDataLoss, bigintRadix });
+        const tmpObj = customStringify(obj, { ignoreFunctions, bigintRadix });
         if (tmpObj) {
             return tmpObj;
         }
@@ -60,7 +60,7 @@ const decent = (obj, options) => {
         }
         return tmpObj;
     }
-    return convertType(obj, { ignoreDataLoss, bigintRadix });
+    return convertType(obj, { ignoreFunctions, bigintRadix });
 };
 const stringify = (obj, options = {}) => JSON.stringify(decent(obj, options));
 exports.stringify = stringify;

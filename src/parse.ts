@@ -90,6 +90,6 @@ const decent = <T extends string>(obj: unknown, options: ParseOptions<T>): unkno
 	throw new Error('Invalid structure');
 };
 
-export const parse = <T extends string>(s: string, options: ParseOptions<T> = {}): unknown => {
-	return decent(JSON.parse(s), options);
+export const parse = <T extends string>(json: string, options: ParseOptions<T> = {}): unknown => {
+	return decent(JSON.parse(json), options);
 };

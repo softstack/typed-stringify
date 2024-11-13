@@ -36,7 +36,7 @@ The `stringify` function converts a JavaScript object into a JSON string while p
 
 #### Returns
 
-- `string`: The JSON string representation of the object.
+- (string): The JSON string representation of the object.
 
 ### parse()
 
@@ -44,13 +44,13 @@ The `parse` function converts a JSON string back into a JavaScript object while 
 
 #### Parameters
 
-- `s` (string): The JSON string to be parsed.
+- `json` (string): The JSON string to be parsed.
 - `options` (ParseOptions<T>): An optional configuration object that can include:
   - `customParse` (CustomParse<T>): A custom parse function for handling additional types.
 
 #### Returns
 
-- `unknown`: The JavaScript object representation of the JSON string.
+- (unknown): The JavaScript object representation of the JSON string.
 
 ## Custom Functions
 
@@ -62,11 +62,11 @@ The `customStringify` function allows you to define custom serialization logic f
 
 - `obj` (unknown): The object to be stringified.
 - `options` (CustomStringifyOptions): An optional configuration object that can include:
-  - `bigintRadix` (number): The radix to use for bigint serialization (default is 10).
-  - `dateFormat` ('iso' | 'number'): The format to use for Date serialization (default is 'iso').
-  - `ignoreFunctions` (boolean): Whether to ignore functions during serialization (default is false).
-  - `skipNull` (boolean): Whether to skip null values during serialization (default is false).
-  - `skipUndefined` (boolean): Whether to skip undefined values during serialization (default is false).
+  - `bigintRadix` (number): The radix to use for bigint serialization.
+  - `dateFormat` ('iso' | 'number'): The format to use for Date serialization.
+  - `ignoreFunctions` (boolean): Whether to ignore functions during serialization.
+  - `skipNull` (boolean): Whether to skip null values during serialization.
+  - `skipUndefined` (boolean): Whether to skip undefined values during serialization.
 
 #### Returns
 

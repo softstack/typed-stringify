@@ -81,8 +81,8 @@ const decent = (obj, options) => {
     }
     throw new Error('Invalid structure');
 };
-const parse = (s, options = {}) => {
-    return decent(JSON.parse(s), options);
+const parse = (json, options = {}) => {
+    return decent(JSON.parse(json), options);
 };
 exports.parse = parse;
 //# sourceMappingURL=parse.js.map

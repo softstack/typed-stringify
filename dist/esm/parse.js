@@ -1,12 +1,12 @@
 const hasOwnProperty = (object, property) => Object.prototype.hasOwnProperty.call(object, property);
-export const isTypedValue = (obj) => {
+const isTypedValue = (obj) => {
     if (typeof obj === 'object' && hasOwnProperty(obj, 't') && typeof obj.t === 'string') {
         const keys = Object.keys(obj);
         return keys.length === 1 || (keys.length === 2 && hasOwnProperty(obj, 'v') && typeof obj.v === 'string');
     }
     return false;
 };
-const convertType = ({ t, v }) => {
+const convertType = ({ t, v, }) => {
     switch (t) {
         case 'function': {
             return undefined;

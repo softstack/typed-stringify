@@ -5,12 +5,12 @@ type MyType = StringifyType | 'BigNumber';
 
 const customStringify: CustomStringify<MyType> = (obj) => {
 	if (obj instanceof BigNumber) {
-		return { t: 'BigNumber', v: obj.toString() };
+		return { useResult: true, result: { t: 'BigNumber', v: obj.toString() } };
 	}
-	return undefined;
+	return { useResult: false };
 };
 
-const customParse: CustomParse = (obj) => {
+const customParse: CustomParse<MyType> = (obj) => {
 	const { t, v } = obj as TypedValue<MyType>;
 	if (t === 'BigNumber') {
 		if (v === undefined) {

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.parse = exports.isTypedValue = void 0;
+exports.parse = void 0;
 const hasOwnProperty = (object, property) => Object.prototype.hasOwnProperty.call(object, property);
 const isTypedValue = (obj) => {
     if (typeof obj === 'object' && hasOwnProperty(obj, 't') && typeof obj.t === 'string') {
@@ -9,8 +9,7 @@ const isTypedValue = (obj) => {
     }
     return false;
 };
-exports.isTypedValue = isTypedValue;
-const convertType = ({ t, v }) => {
+const convertType = ({ t, v, }) => {
     switch (t) {
         case 'function': {
             return undefined;
@@ -64,7 +63,7 @@ const decent = (obj, options) => {
         return obj.map((obj) => decent(obj, options));
     }
     else if (obj && typeof obj === 'object') {
-        if ((0, exports.isTypedValue)(obj)) {
+        if (isTypedValue(obj)) {
             const { customParse } = options;
             if (customParse) {
                 const { useResult, result } = customParse(obj);

@@ -11,7 +11,7 @@ export type StringifyType =
 
 export type DateFormat = 'iso' | 'number';
 
-export interface TypedValue<T extends string = StringifyType> {
+export interface TypedValue<T extends string> {
 	t: T;
 	v?: string;
 }
@@ -26,10 +26,12 @@ export interface BaseOptions {
 
 export type CustomStringifyOptions = BaseOptions;
 
+export type CustomStringifyResult<T extends string> = { useResult: boolean; result?: TypedValue<T> };
+
 export type CustomStringify<T extends string> = (
 	obj: unknown,
 	options: CustomStringifyOptions,
-) => { useResult: boolean; result?: TypedValue<T> };
+) => CustomStringifyResult<T>;
 
 export interface DecentOptions<T extends string> extends BaseOptions {
 	customStringify?: CustomStringify<T>;
@@ -41,8 +43,10 @@ export interface StringifyOptions<T extends string> extends Partial<BaseOptions>
 
 export type ConvertTypeOptions = BaseOptions;
 
-export type CustomParse = (obj: TypedValue) => { useResult: boolean; result?: unknown };
+export type CustomParseResult = { useResult: boolean; result?: unknown };
 
-export interface ParseOptions {
-	customParse?: CustomParse;
+export type CustomParse<T extends string> = (obj: TypedValue<T>) => CustomParseResult;
+
+export interface ParseOptions<T extends string> {
+	customParse?: CustomParse<T>;
 }

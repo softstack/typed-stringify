@@ -1,3 +1,2 @@
-import { ParseOptions, TypedValue } from './types';
-export declare const isTypedValue: (obj: unknown) => obj is TypedValue;
-export declare const parse: (s: string, options?: ParseOptions) => unknown;
+import { ParseOptions } from './types';
+export declare const parse: <T extends string>(s: string, options?: ParseOptions<T>) => unknown;

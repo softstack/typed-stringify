@@ -1,16 +1,16 @@
-import { CustomParse, CustomStringify, parse, stringify, StringifyType, TypedValue } from '../index';
+import { CustomParse, CustomStringify, parse, stringify, StringifyType } from '../index';
 
 type MyType = StringifyType | 'Buffer';
 
 const customStringify: CustomStringify<MyType> = (obj) => {
 	if (obj instanceof Buffer) {
-		return { t: 'Buffer', v: obj.toString('base64') };
+		return { useResult: true, result: { t: 'Buffer', v: obj.toString('base64') } };
 	}
-	return undefined;
+	return { useResult: false };
 };
 
-const customParse: CustomParse = (obj) => {
-	const { t, v } = obj as TypedValue<MyType>;
+const customParse: CustomParse<MyType> = (obj) => {
+	const { t, v } = obj;
 	if (t === 'Buffer') {
 		if (v === undefined) {
 			throw new Error('No value');

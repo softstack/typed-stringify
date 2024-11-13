@@ -1,9 +1,9 @@
-import { ParseOptions, TypedValue } from './types';
+import { ParseOptions, StringifyType, TypedValue } from './types';
 
 const hasOwnProperty = <X, Y extends PropertyKey>(object: X, property: Y): object is X & Record<Y, unknown> =>
 	Object.prototype.hasOwnProperty.call(object, property);
 
-export const isTypedValue = (obj: unknown): obj is TypedValue => {
+const isTypedValue = <T extends string>(obj: unknown): obj is TypedValue<T> => {
 	if (typeof obj === 'object' && hasOwnProperty(obj, 't') && typeof obj.t === 'string') {
 		const keys = Object.keys(obj);
 		return keys.length === 1 || (keys.length === 2 && hasOwnProperty(obj, 'v') && typeof obj.v === 'string');
@@ -11,7 +11,10 @@ export const isTypedValue = (obj: unknown): obj is TypedValue => {
 	return false;
 };
 
-const convertType = ({ t, v }: TypedValue): bigint | boolean | Date | null | number | string | symbol | undefined => {
+const convertType = ({
+	t,
+	v,
+}: TypedValue<StringifyType>): bigint | boolean | Date | null | number | string | symbol | undefined => {
 	switch (t) {
 		case 'function': {
 			return undefined;
@@ -64,19 +67,19 @@ const convertType = ({ t, v }: TypedValue): bigint | boolean | Date | null | num
 	}
 };
 
-const decent = (obj: unknown, options: ParseOptions): unknown => {
+const decent = <T extends string>(obj: unknown, options: ParseOptions<T>): unknown => {
 	if (Array.isArray(obj)) {
 		return obj.map((obj) => decent(obj, options));
 	} else if (obj && typeof obj === 'object') {
 		if (isTypedValue(obj)) {
 			const { customParse } = options;
 			if (customParse) {
-				const { useResult, result } = customParse(obj);
+				const { useResult, result } = customParse(obj as TypedValue<T>);
 				if (useResult) {
 					return result;
 				}
 			}
-			return convertType(obj);
+			return convertType(obj as TypedValue<StringifyType>);
 		}
 		const tmpObj: { [key: string]: unknown } = {};
 		for (const [key, value] of Object.entries(obj)) {
@@ -87,6 +90,6 @@ const decent = (obj: unknown, options: ParseOptions): unknown => {
 	throw new Error('Invalid structure');
 };
 
-export const parse = (s: string, options: ParseOptions = {}): unknown => {
+export const parse = <T extends string>(s: string, options: ParseOptions<T> = {}): unknown => {
 	return decent(JSON.parse(s), options);
 };

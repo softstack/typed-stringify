@@ -13,7 +13,7 @@ const customStringify: CustomStringify<TestType> = (obj) => {
 	return { useResult: false };
 };
 
-const customParse: CustomParse = (typedValue: TypedValue<TestType>) => {
+const customParse: CustomParse<TestType> = (typedValue: TypedValue<TestType>) => {
 	const { t, v } = typedValue;
 	switch (t) {
 		case 'BigNumber': {

@@ -3,7 +3,7 @@ import { ConvertTypeOptions, DecentOptions, StringifyOptions, StringifyType, Typ
 const convertType = (
 	obj: unknown,
 	{ bigintRadix, dateFormat, ignoreFunctions, skipNull, skipUndefined }: ConvertTypeOptions,
-): TypedValue | undefined => {
+): TypedValue<StringifyType> | undefined => {
 	if (obj === null) {
 		return skipNull ? undefined : { t: 'null' };
 	} else if (obj === undefined) {
@@ -43,7 +43,7 @@ const convertType = (
 	throw new Error(`Unknown datatype: ${typeof obj}`);
 };
 
-const decent = <T extends string = StringifyType>(obj: unknown, options: DecentOptions<T>): unknown => {
+const decent = <T extends string>(obj: unknown, options: DecentOptions<T>): unknown => {
 	const { customStringify } = options;
 	if (customStringify) {
 		const { useResult, result } = customStringify(obj, options);

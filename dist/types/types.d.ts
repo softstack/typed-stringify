@@ -1,4 +1,4 @@
-export type StringifyType = 'bigint' | 'boolean' | 'Date' | 'function' | 'null' | 'number' | 'Set' | 'string' | 'symbol' | 'undefined';
+export type StringifyType = 'bigint' | 'boolean' | 'Date' | 'function' | 'Map' | 'null' | 'number' | 'Set' | 'string' | 'symbol' | 'undefined';
 export type DateFormat = 'iso' | 'number';
 export interface TypedValue<T extends string> {
     t: T;

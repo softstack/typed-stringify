@@ -12,6 +12,9 @@ const convertType = (obj, options) => {
     else if (obj instanceof Date) {
         return { t: 'Date', v: dateFormat === 'iso' ? obj.toISOString() : obj.getTime().toString() };
     }
+    else if (obj instanceof Map) {
+        return { t: 'Map', v: (0, exports.stringify)([...obj], options) };
+    }
     else if (obj instanceof Set) {
         return { t: 'Set', v: (0, exports.stringify)([...obj], options) };
     }
@@ -57,7 +60,11 @@ const decent = (obj, options) => {
     if (Array.isArray(obj)) {
         return obj.map((obj) => decent(obj, options));
     }
-    else if (obj && typeof obj === 'object' && !(obj instanceof Date) && !(obj instanceof Set)) {
+    else if (obj &&
+        typeof obj === 'object' &&
+        !(obj instanceof Date) &&
+        !(obj instanceof Map) &&
+        !(obj instanceof Set)) {
         const tmpObj = {};
         for (const [key, value] of Object.entries(obj)) {
             tmpObj[key] = decent(value, options);

@@ -17,6 +17,8 @@ const convertType = <T extends string>(
 		return skipUndefined ? undefined : { t: 'undefined' };
 	} else if (obj instanceof Date) {
 		return { t: 'Date', v: dateFormat === 'iso' ? obj.toISOString() : obj.getTime().toString() };
+	} else if (obj instanceof Map) {
+		return { t: 'Map', v: stringify([...obj], options) };
 	} else if (obj instanceof Set) {
 		return { t: 'Set', v: stringify([...obj], options) };
 	}
@@ -62,7 +64,13 @@ const decent = <T extends string>(obj: unknown, options: DefaultedStringifyOptio
 	}
 	if (Array.isArray(obj)) {
 		return obj.map((obj) => decent(obj, options));
-	} else if (obj && typeof obj === 'object' && !(obj instanceof Date) && !(obj instanceof Set)) {
+	} else if (
+		obj &&
+		typeof obj === 'object' &&
+		!(obj instanceof Date) &&
+		!(obj instanceof Map) &&
+		!(obj instanceof Set)
+	) {
 		const tmpObj: { [key: string]: unknown } = {};
 		for (const [key, value] of Object.entries(obj)) {
 			tmpObj[key] = decent(value, options);

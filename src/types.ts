@@ -3,6 +3,7 @@ export type StringifyType =
 	| 'boolean'
 	| 'Date'
 	| 'function'
+	| 'Map'
 	| 'null'
 	| 'number'
 	| 'Set'

@@ -40,6 +40,13 @@ const bigTestObject = {
 		d: undefined,
 		e: new Date(1_731_319_860_000),
 		f: new BigNumber(12_345.6789),
+		g: new Set([1, '2', 3, 4, 5]),
+		h: new Map([
+			['a', { a: 1 }],
+			['b', {}],
+			['c', { b: new Date(1_731_319_860_000) }],
+			['d', { a: BigInt(8) }],
+		]),
 	},
 	v: {
 		t: '4444',
@@ -190,6 +197,16 @@ test('Function without "ignoreFunctions = true" should throw an error', () => {
 });
 
 test('Set', () => {
-	const obj = new Set([1, '2', 3, 4, 5]);
-	expect(isEqual(obj, parse(stringify(obj)))).toBe(true);
+	const set = new Set([1, '2', 3, 4, 5]);
+	expect(isEqual(set, parse(stringify(set)))).toBe(true);
+});
+
+test('Map', () => {
+	const map = new Map([
+		['a', { a: 1 }],
+		['b', {}],
+		['c', { b: new Date(1_731_319_860_000) }],
+		['d', { a: BigInt(8) }],
+	]);
+	expect(isEqual(map, parse(stringify(map)))).toBe(true);
 });

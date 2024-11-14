@@ -47,6 +47,9 @@ const convertType = ({ t, v }, options) => {
         case 'Date': {
             return v.includes('T') ? new Date(v) : new Date(Number(v));
         }
+        case 'Map': {
+            return new Map((0, exports.parse)(v, options));
+        }
         case 'number': {
             return Number(v);
         }

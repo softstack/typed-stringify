@@ -14,7 +14,7 @@ const isTypedValue = <T extends string>(obj: unknown): obj is TypedValue<T> => {
 const convertType = <T extends string>(
 	{ t, v }: TypedValue<StringifyType>,
 	options: ParseOptions<T>,
-): bigint | boolean | Date | null | number | Set<unknown> | string | symbol | undefined => {
+): bigint | boolean | Date | Map<unknown, unknown> | null | number | Set<unknown> | string | symbol | undefined => {
 	switch (t) {
 		case 'function': {
 			return undefined;
@@ -54,6 +54,9 @@ const convertType = <T extends string>(
 		}
 		case 'Date': {
 			return v.includes('T') ? new Date(v) : new Date(Number(v));
+		}
+		case 'Map': {
+			return new Map(parse(v, options) as Array<[unknown, unknown]>);
 		}
 		case 'number': {
 			return Number(v);

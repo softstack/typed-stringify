@@ -1,5 +1,5 @@
 import BigNumber from 'bignumber.js';
-import { CustomParse, CustomStringify, parse, stringify, StringifyType, TypedValue } from '../index';
+import { CustomParse, CustomStringify, parse, stringify, StringifyType, TypedValue } from '../src/index';
 
 type MyType = StringifyType | 'BigNumber';
 

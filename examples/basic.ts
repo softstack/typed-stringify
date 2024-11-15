@@ -1,4 +1,4 @@
-import { parse, stringify } from '../index';
+import { parse, stringify } from '../src/index';
 
 const obj = { a: 'hello', b: [1, 2, 3, 4, 5], c: new Date(1_731_319_860_000), d: 123_345_789n, e: true };
 console.log(obj);

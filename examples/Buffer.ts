@@ -1,4 +1,4 @@
-import { CustomParse, CustomStringify, parse, stringify, StringifyType } from '../index';
+import { CustomParse, CustomStringify, parse, stringify, StringifyType } from '../src/index';
 
 type MyType = StringifyType | 'Buffer';
 

@@ -5,7 +5,7 @@ import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
 export default [
-	{ files: ['**/*.{js,mjs,cjs,ts}'] },
+	{ files: ['**/*.{cjs,js,mjs,ts}'] },
 	{ ignores: ['**/dist/**'] },
 	{ languageOptions: { globals: globals.node } },
 	pluginJs.configs.recommended,

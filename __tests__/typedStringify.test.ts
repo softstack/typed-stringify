@@ -1,6 +1,6 @@
 import BigNumber from 'bignumber.js';
 import { cloneDeep, isEqual } from 'lodash';
-import { CustomParse, CustomStringify, parse, stringify, StringifyType, TypedValue } from '../index';
+import { CustomParse, CustomStringify, parse, stringify, StringifyType, TypedValue } from '../src/index';
 
 type TestType = StringifyType | 'BigNumber' | 'Buffer';
 

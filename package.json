@@ -1,6 +1,6 @@
 {
 	"name": "@softstack/typed-stringify",
-	"version": "3.0.0-alpha.2",
+	"version": "3.0.0-alpha.3",
 	"description": "Stringifies and parses objects while restoring the proper type on parse",
 	"main": "dist/cjs/index.js",
 	"module": "dist/esm/index.js",

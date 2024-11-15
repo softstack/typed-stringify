@@ -1,3 +1,4 @@
+import { ERROR_CONSTRUCTORS } from './constants';
 import { CustomParseOptions, ParseOptions, StringifyType, TypedValue } from './types';
 
 const hasOwnProperty = <X, Y extends PropertyKey>(object: X, property: Y): object is X & Record<Y, unknown> =>
@@ -14,7 +15,18 @@ const isTypedValue = <T extends string>(obj: unknown): obj is TypedValue<T> => {
 const convertType = <T extends string>(
 	{ t, v }: TypedValue<StringifyType>,
 	options: ParseOptions<T>,
-): bigint | boolean | Date | Map<unknown, unknown> | null | number | Set<unknown> | string | symbol | undefined => {
+):
+	| bigint
+	| boolean
+	| Date
+	| Error
+	| Map<unknown, unknown>
+	| null
+	| number
+	| Set<unknown>
+	| string
+	| symbol
+	| undefined => {
 	switch (t) {
 		case 'function': {
 			return undefined;
@@ -54,6 +66,17 @@ const convertType = <T extends string>(
 		}
 		case 'Date': {
 			return v.includes('T') ? new Date(v) : new Date(Number(v));
+		}
+		case 'Error': {
+			const { name, message, stack } = parse(v, options) as {
+				name: string;
+				message: string;
+				stack: string | undefined;
+			};
+			const ErrorConstructor = ERROR_CONSTRUCTORS.get(name) ?? Error;
+			const error = new ErrorConstructor(message);
+			error.stack = stack;
+			return error;
 		}
 		case 'Map': {
 			return new Map(parse(v, options) as Array<[unknown, unknown]>);

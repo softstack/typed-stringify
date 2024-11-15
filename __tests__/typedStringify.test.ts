@@ -210,3 +210,13 @@ test('Map', () => {
 	]);
 	expect(isEqual(map, parse(stringify(map)))).toBe(true);
 });
+
+test('Error', () => {
+	const error = new Error('error message');
+	expect(isEqual(error, parse(stringify(error)))).toBe(true);
+});
+
+test('RangeError', () => {
+	const error = new Error('error message');
+	expect(isEqual(error, parse(stringify(error)))).toBe(true);
+});

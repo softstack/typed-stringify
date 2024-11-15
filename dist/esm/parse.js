@@ -1,3 +1,4 @@
+import { ERROR_CONSTRUCTORS } from './constants';
 const hasOwnProperty = (object, property) => Object.prototype.hasOwnProperty.call(object, property);
 const isTypedValue = (obj) => {
     if (typeof obj === 'object' && hasOwnProperty(obj, 't') && typeof obj.t === 'string') {
@@ -7,6 +8,7 @@ const isTypedValue = (obj) => {
     return false;
 };
 const convertType = ({ t, v }, options) => {
+    var _a;
     switch (t) {
         case 'function': {
             return undefined;
@@ -43,6 +45,13 @@ const convertType = ({ t, v }, options) => {
         }
         case 'Date': {
             return v.includes('T') ? new Date(v) : new Date(Number(v));
+        }
+        case 'Error': {
+            const { name, message, stack } = parse(v, options);
+            const ErrorConstructor = (_a = ERROR_CONSTRUCTORS.get(name)) !== null && _a !== void 0 ? _a : Error;
+            const error = new ErrorConstructor(message);
+            error.stack = stack;
+            return error;
         }
         case 'Map': {
             return new Map(parse(v, options));

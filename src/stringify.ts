@@ -17,6 +17,11 @@ const convertType = <T extends string>(
 		return skipUndefined ? undefined : { t: 'undefined' };
 	} else if (obj instanceof Date) {
 		return { t: 'Date', v: dateFormat === 'iso' ? obj.toISOString() : obj.getTime().toString() };
+	} else if (obj instanceof Error) {
+		return {
+			t: 'Error',
+			v: stringify({ name: obj.name, message: obj.message, stack: obj.stack }, options),
+		};
 	} else if (obj instanceof Map) {
 		return { t: 'Map', v: stringify([...obj], options) };
 	} else if (obj instanceof Set) {
@@ -68,6 +73,7 @@ const decent = <T extends string>(obj: unknown, options: DefaultedStringifyOptio
 		obj &&
 		typeof obj === 'object' &&
 		!(obj instanceof Date) &&
+		!(obj instanceof Error) &&
 		!(obj instanceof Map) &&
 		!(obj instanceof Set)
 	) {

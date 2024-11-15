@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.parse = void 0;
+const constants_1 = require("./constants");
 const hasOwnProperty = (object, property) => Object.prototype.hasOwnProperty.call(object, property);
 const isTypedValue = (obj) => {
     if (typeof obj === 'object' && hasOwnProperty(obj, 't') && typeof obj.t === 'string') {
@@ -10,6 +11,7 @@ const isTypedValue = (obj) => {
     return false;
 };
 const convertType = ({ t, v }, options) => {
+    var _a;
     switch (t) {
         case 'function': {
             return undefined;
@@ -46,6 +48,13 @@ const convertType = ({ t, v }, options) => {
         }
         case 'Date': {
             return v.includes('T') ? new Date(v) : new Date(Number(v));
+        }
+        case 'Error': {
+            const { name, message, stack } = (0, exports.parse)(v, options);
+            const ErrorConstructor = (_a = constants_1.ERROR_CONSTRUCTORS.get(name)) !== null && _a !== void 0 ? _a : Error;
+            const error = new ErrorConstructor(message);
+            error.stack = stack;
+            return error;
         }
         case 'Map': {
             return new Map((0, exports.parse)(v, options));

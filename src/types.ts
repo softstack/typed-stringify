@@ -2,6 +2,7 @@ export type StringifyType =
 	| 'bigint'
 	| 'boolean'
 	| 'Date'
+	| 'Error'
 	| 'function'
 	| 'Map'
 	| 'null'

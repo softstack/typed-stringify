@@ -15,6 +15,7 @@
 - Complex Types:
   - Array
   - Date
+  - Error
   - Map
   - Object
   - Set

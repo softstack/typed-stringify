@@ -71,29 +71,38 @@ const convertType = ({ t, v }, options) => {
     }
 };
 const decent = (obj, options) => {
+    const { currentDepth, maxDepth } = options;
+    if (currentDepth > maxDepth) {
+        throw new Error('Max depth exceeded');
+    }
     if (Array.isArray(obj)) {
-        return obj.map((obj) => decent(obj, options));
+        return obj.map((obj) => decent(obj, { ...options, currentDepth: currentDepth + 1 }));
     }
     else if (obj && typeof obj === 'object') {
         if (isTypedValue(obj)) {
             const { customParse } = options;
             if (customParse) {
-                const { useResult, result } = customParse(obj, options);
+                const { useResult, result } = customParse(obj, { ...options, currentDepth: currentDepth + 1 });
                 if (useResult) {
                     return result;
                 }
             }
-            return convertType(obj, options);
+            return convertType(obj, { ...options, currentDepth: currentDepth + 1 });
         }
         const tmpObj = {};
         for (const [key, value] of Object.entries(obj)) {
-            tmpObj[key] = decent(value, options);
+            tmpObj[key] = decent(value, { ...options, currentDepth: currentDepth + 1 });
         }
         return tmpObj;
     }
     throw new Error('Invalid structure');
 };
 export const parse = (json, options = {}) => {
-    return decent(JSON.parse(json), options);
+    var _a, _b;
+    return decent(JSON.parse(json), {
+        currentDepth: (_a = options.currentDepth) !== null && _a !== void 0 ? _a : 0,
+        customParse: options.customParse,
+        maxDepth: (_b = options.maxDepth) !== null && _b !== void 0 ? _b : 20,
+    });
 };
 //# sourceMappingURL=parse.js.map

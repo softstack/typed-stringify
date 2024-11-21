@@ -60,15 +60,21 @@ const convertType = <T extends string>(
 };
 
 const decent = <T extends string>(obj: unknown, options: DefaultedStringifyOptions<T>): unknown => {
-	const { customStringify } = options;
+	const { customStringify, currentDepth, maxDepth } = options;
+	if (currentDepth > maxDepth) {
+		throw new Error('Max depth exceeded');
+	}
 	if (customStringify) {
-		const { useResult, result } = customStringify(obj, options as CustomStringifyOptions<T>);
+		const { useResult, result } = customStringify(obj, {
+			...options,
+			currentDepth: currentDepth + 1,
+		} as CustomStringifyOptions<T>);
 		if (useResult) {
 			return result;
 		}
 	}
 	if (Array.isArray(obj)) {
-		return obj.map((obj) => decent(obj, options));
+		return obj.map((obj) => decent(obj, { ...options, currentDepth: currentDepth + 1 }));
 	} else if (
 		obj &&
 		typeof obj === 'object' &&
@@ -79,20 +85,22 @@ const decent = <T extends string>(obj: unknown, options: DefaultedStringifyOptio
 	) {
 		const tmpObj: { [key: string]: unknown } = {};
 		for (const [key, value] of Object.entries(obj)) {
-			tmpObj[key] = decent(value, options);
+			tmpObj[key] = decent(value, { ...options, currentDepth: currentDepth + 1 });
 		}
 		return tmpObj;
 	}
-	return convertType(obj, options);
+	return convertType(obj, { ...options, currentDepth: currentDepth + 1 });
 };
 
 export const stringify = <T extends string = StringifyType>(obj: unknown, options: StringifyOptions<T> = {}): string =>
 	JSON.stringify(
 		decent(obj, {
 			bigintRadix: options.bigintRadix ?? 10,
+			currentDepth: options.currentDepth ?? 0,
 			customStringify: options.customStringify,
 			dateFormat: options.dateFormat ?? 'iso',
 			ignoreFunctions: options.ignoreFunctions ?? false,
+			maxDepth: options.maxDepth ?? 20,
 			skipNull: options.skipNull ?? false,
 			skipUndefined: options.skipUndefined ?? false,
 		}),

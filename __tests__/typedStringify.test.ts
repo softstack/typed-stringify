@@ -1,5 +1,6 @@
 import BigNumber from 'bignumber.js';
 import { cloneDeep, isEqual } from 'lodash';
+import { inspect } from 'node:util';
 import { CustomParse, CustomStringify, parse, stringify, StringifyType, TypedValue } from '../src/index';
 
 type TestType = StringifyType | 'BigNumber' | 'Buffer';
@@ -219,4 +220,16 @@ test('Error', () => {
 test('RangeError', () => {
 	const error = new Error('error message');
 	expect(isEqual(error, parse(stringify(error)))).toBe(true);
+});
+
+test('stringify depth', () => {
+	const obj = { '1': { '2': { '3': { '4': { '5': { '6': { '7': { '8': 'hello' } } } } } } } };
+	expect(() => parse(stringify(obj, { maxDepth: 7 }))).toThrow(Error);
+	expect(isEqual(obj, parse(stringify(obj, { maxDepth: 8 })))).toBe(true);
+});
+
+test('parse depth', () => {
+	const obj = { '1': { '2': { '3': { '4': { '5': { '6': { '7': { '8': 'hello' } } } } } } } };
+	expect(() => parse(stringify(obj), { maxDepth: 7 })).toThrow(Error);
+	expect(isEqual(obj, parse(stringify(obj), { maxDepth: 8 }))).toBe(true);
 });

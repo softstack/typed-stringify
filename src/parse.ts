@@ -1,5 +1,5 @@
 import { ERROR_CONSTRUCTORS } from './constants';
-import { CustomParseOptions, ParseOptions, StringifyType, TypedValue } from './types';
+import { CustomParseOptions, DefaultedParseOptions, ParseOptions, StringifyType, TypedValue } from './types';
 
 const hasOwnProperty = <X, Y extends PropertyKey>(object: X, property: Y): object is X & Record<Y, unknown> =>
 	Object.prototype.hasOwnProperty.call(object, property);
@@ -96,23 +96,30 @@ const convertType = <T extends string>(
 	}
 };
 
-const decent = <T extends string>(obj: unknown, options: ParseOptions<T>): unknown => {
+const decent = <T extends string>(obj: unknown, options: DefaultedParseOptions<T>): unknown => {
+	const { currentDepth, maxDepth } = options;
+	if (currentDepth > maxDepth) {
+		throw new Error('Max depth exceeded');
+	}
 	if (Array.isArray(obj)) {
-		return obj.map((obj) => decent(obj, options));
+		return obj.map((obj) => decent(obj, { ...options, currentDepth: currentDepth + 1 }));
 	} else if (obj && typeof obj === 'object') {
 		if (isTypedValue(obj)) {
 			const { customParse } = options;
 			if (customParse) {
-				const { useResult, result } = customParse(obj as TypedValue<T>, options as CustomParseOptions<T>);
+				const { useResult, result } = customParse(
+					obj as TypedValue<T>,
+					{ ...options, currentDepth: currentDepth + 1 } as CustomParseOptions<T>,
+				);
 				if (useResult) {
 					return result;
 				}
 			}
-			return convertType(obj as TypedValue<StringifyType>, options);
+			return convertType(obj as TypedValue<StringifyType>, { ...options, currentDepth: currentDepth + 1 });
 		}
 		const tmpObj: { [key: string]: unknown } = {};
 		for (const [key, value] of Object.entries(obj)) {
-			tmpObj[key] = decent(value, options);
+			tmpObj[key] = decent(value, { ...options, currentDepth: currentDepth + 1 });
 		}
 		return tmpObj;
 	}
@@ -120,5 +127,9 @@ const decent = <T extends string>(obj: unknown, options: ParseOptions<T>): unkno
 };
 
 export const parse = <T extends string>(json: string, options: ParseOptions<T> = {}): unknown => {
-	return decent(JSON.parse(json), options);
+	return decent(JSON.parse(json), {
+		currentDepth: options.currentDepth ?? 0,
+		customParse: options.customParse,
+		maxDepth: options.maxDepth ?? 20,
+	});
 };

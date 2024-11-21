@@ -53,15 +53,21 @@ const convertType = (obj, options) => {
     throw new Error(`Unknown datatype: ${typeof obj}`);
 };
 const decent = (obj, options) => {
-    const { customStringify } = options;
+    const { customStringify, currentDepth, maxDepth } = options;
+    if (currentDepth > maxDepth) {
+        throw new Error('Max depth exceeded');
+    }
     if (customStringify) {
-        const { useResult, result } = customStringify(obj, options);
+        const { useResult, result } = customStringify(obj, {
+            ...options,
+            currentDepth: currentDepth + 1,
+        });
         if (useResult) {
             return result;
         }
     }
     if (Array.isArray(obj)) {
-        return obj.map((obj) => decent(obj, options));
+        return obj.map((obj) => decent(obj, { ...options, currentDepth: currentDepth + 1 }));
     }
     else if (obj &&
         typeof obj === 'object' &&
@@ -71,21 +77,23 @@ const decent = (obj, options) => {
         !(obj instanceof Set)) {
         const tmpObj = {};
         for (const [key, value] of Object.entries(obj)) {
-            tmpObj[key] = decent(value, options);
+            tmpObj[key] = decent(value, { ...options, currentDepth: currentDepth + 1 });
         }
         return tmpObj;
     }
-    return convertType(obj, options);
+    return convertType(obj, { ...options, currentDepth: currentDepth + 1 });
 };
 export const stringify = (obj, options = {}) => {
-    var _a, _b, _c, _d, _e;
+    var _a, _b, _c, _d, _e, _f, _g;
     return JSON.stringify(decent(obj, {
         bigintRadix: (_a = options.bigintRadix) !== null && _a !== void 0 ? _a : 10,
+        currentDepth: (_b = options.currentDepth) !== null && _b !== void 0 ? _b : 0,
         customStringify: options.customStringify,
-        dateFormat: (_b = options.dateFormat) !== null && _b !== void 0 ? _b : 'iso',
-        ignoreFunctions: (_c = options.ignoreFunctions) !== null && _c !== void 0 ? _c : false,
-        skipNull: (_d = options.skipNull) !== null && _d !== void 0 ? _d : false,
-        skipUndefined: (_e = options.skipUndefined) !== null && _e !== void 0 ? _e : false,
+        dateFormat: (_c = options.dateFormat) !== null && _c !== void 0 ? _c : 'iso',
+        ignoreFunctions: (_d = options.ignoreFunctions) !== null && _d !== void 0 ? _d : false,
+        maxDepth: (_e = options.maxDepth) !== null && _e !== void 0 ? _e : 20,
+        skipNull: (_f = options.skipNull) !== null && _f !== void 0 ? _f : false,
+        skipUndefined: (_g = options.skipUndefined) !== null && _g !== void 0 ? _g : false,
     }));
 };
 //# sourceMappingURL=stringify.js.map

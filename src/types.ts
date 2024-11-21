@@ -23,8 +23,10 @@ export interface TypedValue<T extends string> {
 
 export interface BaseStringifyOptions {
 	bigintRadix: number;
+	currentDepth: number;
 	dateFormat: DateFormat;
 	ignoreFunctions: boolean;
+	maxDepth: number;
 	skipNull: boolean;
 	skipUndefined: boolean;
 }
@@ -50,7 +52,12 @@ export type StringifyOptions<T extends string> = Partial<DefaultedStringifyOptio
 
 // Start parse
 
-export interface CustomParseOptions<T extends string> {
+export interface BaseParseOptions {
+	currentDepth: number;
+	maxDepth: number;
+}
+
+export interface CustomParseOptions<T extends string> extends BaseParseOptions {
 	customParse: CustomParse<T>;
 }
 
@@ -58,6 +65,10 @@ export type CustomParseResult = { useResult: boolean; result?: unknown };
 
 export type CustomParse<T extends string> = (obj: TypedValue<T>, options: CustomParseOptions<T>) => CustomParseResult;
 
-export type ParseOptions<T extends string> = Partial<CustomParseOptions<T>>;
+export interface DefaultedParseOptions<T extends string> extends BaseParseOptions {
+	customParse?: CustomParse<T>;
+}
+
+export type ParseOptions<T extends string> = Partial<DefaultedParseOptions<T>>;
 
 // End parse

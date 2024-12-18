@@ -1,6 +1,6 @@
 {
 	"name": "@softstack/typed-stringify",
-	"version": "3.0.0-alpha.3",
+	"version": "3.0.0",
 	"description": "@softstack/typed-stringify is a library designed to serialize and deserialize JavaScript objects while preserving their original types.",
 	"author": "Softstack GmbH <hello@softstack.io> (https://softstack.io)",
 	"license": "MIT",
